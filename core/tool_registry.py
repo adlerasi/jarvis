@@ -276,9 +276,15 @@ _TOOL_DEFS: list[tuple[str, str, dict[str, tuple[str, str]], list[str]]] = [
         {"level": ("NUMBER", "Ses seviyesi 0-100 arasi"),
          "action": ("STRING", "set | up | down | mute | unmute")},
         []),
-]
 
-# ── Tool Handler Map ────────────────────────────────────────
+    # ── ACA (Autonomous Computer Agent) ──
+    ("agent_execute_goal",
+        "Otonom bilgisayar ajanina bir hedef verir. Ajan hedefi adim adim planlar, "
+        "ekrani gozlemler, araclari kullanir ve sonucu bildirir. "
+        "Ornek: 'Notepad ac ve icine merhaba yaz', 'Hesap makinesini ac ve 15*3 hesaplat'",
+        {"goal_text": ("STRING", "Agent'in gerceklestirmesi icin dogal dilde hedef tanimi")},
+        ["goal_text"]),
+]
 # Maps tool name → handler method name on the Jarvis class
 # Must be kept in sync with actual handler methods in main.py
 
@@ -323,6 +329,7 @@ TOOL_HANDLER_MAP: dict[str, str] = {
     "list_services":            "_handle_list_services",
     "control_service":          "_handle_control_service",
     "set_volume":               "_handle_set_volume",
+    "agent_execute_goal":       "_handle_agent_goal",
 }
 
 # ── Valid Tools Set ─────────────────────────────────────────

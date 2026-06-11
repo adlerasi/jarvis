@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 """
 JARVIS  — Gercek zamanli sesli yardimci cekirdegi
 Adler ASİ tarafından yapılmıştır
@@ -10,6 +12,7 @@ import logging
 import traceback
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 LOG_DIR = Path(__file__).resolve().parent / "logs"
@@ -72,6 +75,9 @@ from actions.system_cron import add_cron_job, list_cron_jobs, remove_cron_job, s
 from actions.service_monitor import list_services, control_service
 from core.skill_manager import get_skill_manager
 from core.tool_registry import TOOL_HANDLER_MAP
+
+# ── ACA Agent ──
+from core.agent.agent_manager import AgentManager
 
 # Audio yapılandırması (opsiyonel, config/audio.yaml)
 def load_audio_config() -> dict:
@@ -181,6 +187,9 @@ class JarvisLive:
         self._speaking_cooldown = 2.0
         self._last_speech_end = 0.0
         self._shutdown_event   = threading.Event()
+        self._stt_cb_executor  = ThreadPoolExecutor(
+            max_workers=1, thread_name_prefix="stt_cb"
+        )
 
         self.ui.on_text_command  = self._on_text_command
         self.ui.on_pause_toggle  = self._on_pause_toggle
@@ -269,29 +278,20 @@ class JarvisLive:
             self.wake_word = None
             self._wake_word_triggered = False
 
-        try:
-            # Pull VAD config from audio.yaml (with sensible defaults)
-            vad_cfg = self.app_config.get("audio", {}).get("vad", {})
-            fc = vad_cfg.get("fahrettin", {})
-            vad_engine_name = fc.get("engine", "energy")
-            vad_energy_threshold = float(fc.get("energy_threshold", 50.0))
-
-            from core.vad_engine import create_vad_engine
-            self.vad_engine = create_vad_engine(
-                engine=vad_engine_name,
-                on_speech_start=self._on_vad_speech_start,
-                on_speech_end=self._on_vad_speech_end,
-                energy_threshold=vad_energy_threshold,
-            )
-        except Exception:
-            self.vad_engine = None
+        # VAD engine — not initialized here; each provider manages its own VAD
+        self.vad_engine = None
 
         try:
             from core.streaming_stt import create_streaming_stt
-            self.streaming_stt_engine = create_streaming_stt(
-                on_text=lambda text: self._on_stt_text(text)
-            )
-            self.streaming_stt_engine.start()
+            _cfg = load_app_config()
+            _backend = _cfg.get("backend_type", "gemini")
+            if _backend == "ollama":
+                self.streaming_stt_engine = create_streaming_stt(
+                    on_text=lambda text: self._on_stt_text(text)
+                )
+                self.streaming_stt_engine.start()
+            else:
+                self.streaming_stt_engine = None
         except Exception:
             self.streaming_stt_engine = None
 
@@ -322,6 +322,21 @@ class JarvisLive:
         except Exception:
             self.camera = None
 
+        # ── ACA Agent Manager ──
+        try:
+            from core.agent.agent_manager import AgentManager
+            self.agent_manager = AgentManager(jarvis=self)
+            self.agent_manager.on_state_update = self._on_agent_state_update
+            self.ui.on_agent_approval = self._on_ui_agent_approval
+            self.ui.on_approval_mode_toggle = self._on_ui_approval_toggle
+            self.ui.on_config_change = self._on_ui_config_change
+            # Wire agent skill
+            from skills.agent.agent_skill import set_agent_manager
+            set_agent_manager(self.agent_manager)
+        except Exception:
+            traceback.print_exc()
+            self.agent_manager = None
+
     def _speak_proactive(self, text: str):
         self.set_speaking(True)
         try:
@@ -343,15 +358,34 @@ class JarvisLive:
             self.set_speaking(False)
 
     def _on_stt_text(self, text: str):
-        """StreamingSTT callback — route transcribed text to active provider."""
+        """StreamingSTT callback — route transcribed text to skills or active provider."""
         if not text or not text.strip():
             return
         text = text.strip()
         self._user_initiated = True
-        self.ui.write_log(f"Siz: {text}")
-        self.ui.mark_user_activity(True)
-        if self._provider is not None and hasattr(self._provider, 'input_queue'):
-            self._provider.input_queue.put_nowait(text)
+        self.ui.safe_call(self.ui.write_log, f"Siz: {text}")
+        self.ui.safe_call(self.ui.mark_user_activity, True)
+
+        # Offload blocking route + TTS to background thread (STT callback must not block)
+        self._stt_cb_executor.submit(self._handle_stt_text_async, text)
+
+    def _handle_stt_text_async(self, text: str):
+        """Run skill routing and TTS in a background thread, off the STT callback."""
+        skill_result = self.skill_manager.route(text)
+        if skill_result is not None:
+            self.ui.safe_call(self.ui.write_log, f"JARVIS: {skill_result}")
+            try:
+                from actions.tts import speak_text
+                speak_text(skill_result, blocking=False)
+            except Exception:
+                pass
+            return
+
+        if self._provider is not None:
+            asyncio.run_coroutine_threadsafe(
+                self._provider.send_text(text),
+                self._loop
+            )
 
     def _on_barge_in(self):
         self.set_speaking(False)
@@ -360,13 +394,13 @@ class JarvisLive:
                 self.streaming_tts.stop()
             except Exception:
                 pass
-        self.ui.write_log("SYS: Kullanici araya girdi, yanit kesildi.")
+        self.ui.safe_call(self.ui.write_log, "SYS: Kullanici araya girdi, yanit kesildi.")
 
     def _on_wake_word(self, keyword: str):
-        self.ui.write_log(f"[WakeWord] '{keyword}' algilandi")
+        self.ui.safe_call(self.ui.write_log, f"[WakeWord] '{keyword}' algilandi")
         self._wake_word_triggered = True
         self._user_initiated = True
-        self.ui.mark_user_activity(True)
+        self.ui.safe_call(self.ui.mark_user_activity, True)
 
     def _on_vad_speech_start(self):
         self.ui.write_log("[VAD] Konusma basladi")
@@ -462,6 +496,24 @@ class JarvisLive:
         else:
             self.ui.write_log("ERR: JARVIS baglantisi henuz hazir degil.")
 
+    # ── Valid state transitions ────────────────────────────────
+    _VALID_TRANSITIONS: dict[str, set[str]] = {
+        "LISTENING": {"THINKING", "ERROR", "PAUSED"},
+        "THINKING":  {"LISTENING", "SPEAKING", "ERROR", "PAUSED"},
+        "SPEAKING":  {"LISTENING", "THINKING", "ERROR", "PAUSED"},
+        "ERROR":     {"LISTENING", "THINKING", "PAUSED"},
+        "PAUSED":    {"LISTENING", "THINKING", "ERROR"},
+    }
+
+    def set_state(self, state: str):
+        current = getattr(self.ui, "_jarvis_state", "")
+        if state == current:
+            return
+        allowed = self._VALID_TRANSITIONS.get(current, set())
+        if state not in allowed and current in self._VALID_TRANSITIONS:
+            print(f"[JARVIS] State: {current} -> {state} (izinsiz, yine de uygulaniyor)")
+        self.ui.safe_call(self.ui.set_state, state)
+
     async def _interrupt_audio(self):
         self.set_speaking(False)
 
@@ -473,11 +525,11 @@ class JarvisLive:
             else:
                 self._last_speech_start = time.monotonic()
         if value:
-            self.ui.set_state("SPEAKING")
+            self.set_state("SPEAKING")
             if hasattr(self, "barge_in") and self.barge_in:
                 self.barge_in.set_jarvis_speaking(True, audio_level)
         else:
-            self.ui.set_state("LISTENING")
+            self.set_state("LISTENING")
             if hasattr(self, "barge_in") and self.barge_in:
                 self.barge_in.set_jarvis_speaking(False)
 
@@ -489,7 +541,7 @@ class JarvisLive:
         short = str(error)[:120]
         self.ui.write_log(f"ERR: {tool_name} — {short}")
         self.ui.write_debug(f"{tool_name}: {short}", level="ERROR")
-        self.ui.set_state("ERROR")
+        self.set_state("ERROR")
 
     @staticmethod
     def _result_looks_like_error(result) -> bool:
@@ -526,7 +578,7 @@ class JarvisLive:
         name = fc.name
         args = dict(fc.args or {})
         print(f"[JARVIS] 🔧 {name} {args}")
-        self.ui.set_state("THINKING")
+        self.set_state("THINKING")
 
         loop   = asyncio.get_event_loop()
         result = "Tamam."
@@ -554,12 +606,12 @@ class JarvisLive:
         tool_failed = self._result_looks_like_error(result)
         if tool_failed:
             if not had_exception:
-                self.ui.set_state("ERROR")
+                self.set_state("ERROR")
         elif self._should_play_success_sfx(name, args, result):
             self.ui.play_success_sfx()
 
         if not tool_failed and not self.ui.muted:
-            self.ui.set_state("LISTENING")
+            self.set_state("LISTENING")
 
         print(f"[JARVIS] 📤 {name} → {str(result)[:80]}")
         return types.FunctionResponse(
@@ -593,23 +645,28 @@ class JarvisLive:
                 provider = GeminiProvider()
 
             try:
-                self._provider = provider
                 await provider.start(self)
+                self._provider = provider
                 await provider.run_loop()
             except Exception as e:
                 print(f"[JARVIS] ⚠️ {backend}: {e}")
                 traceback.print_exc()
                 self.set_speaking(False)
-                self.ui.write_log(f"ERR: JARVIS baglantisi kesildi — {e}")
-                self.ui.set_state("ERROR")
+                self.ui.safe_call(self.ui.write_log, f"ERR: JARVIS baglantisi kesildi — {e}")
+                self.set_state("ERROR")
                 print(f"[JARVIS] 🔄 3 saniyede yeniden {backend} baglaniyor...")
+                try:
+                    from core.notification import notify
+                    notify("Bağlantı Hatası", f"{backend}: {e}", priority="critical")
+                except Exception:
+                    pass
                 await asyncio.sleep(3)
             finally:
-                self._provider = None
                 try:
                     await provider.stop()
                 except Exception:
                     pass
+                self._provider = None
 
     # ── Tool handlers ─────────────────────────────────────────
 
@@ -954,6 +1011,60 @@ class JarvisLive:
             return _set_volume(50)
         return "Bilinmeyen aksiyon."
 
+    async def _handle_agent_goal(self, args, loop) -> str:
+        """Execute an autonomous agent goal."""
+        goal_text = args.get("goal_text", "")
+        if not goal_text:
+            return "Hedef metni gerekli."
+        agent = getattr(self, "agent_manager", None)
+        if agent is None:
+            return "ACA agenti aktif degil."
+        try:
+            result = await loop.run_in_executor(None, agent.execute_goal, goal_text)
+            return str(result)
+        except Exception as e:
+            traceback.print_exc()
+            return f"ACA hatasi: {e}"
+
+    def _on_agent_state_update(self, state: dict):
+        """Callback for ACA agent state updates — pushes to UI."""
+        try:
+            self.ui.safe_call(self.ui._update_agent_state, state)
+        except Exception:
+            pass
+
+    def _on_ui_agent_approval(self, request_id: str, approved: bool):
+        agent = getattr(self, "agent_manager", None)
+        if agent is not None:
+            try:
+                agent.respond_to_approval(request_id, approved)
+            except Exception:
+                traceback.print_exc()
+
+    def _on_ui_approval_toggle(self):
+        agent = getattr(self, "agent_manager", None)
+        if agent is not None:
+            try:
+                new_mode = not agent.is_approval_mode()
+                agent.set_approval_mode(new_mode)
+                status = "AÇIK" if new_mode else "KAPALI"
+                self.safe_print(f"[ACA] Onay modu: {status}")
+                agent._emit_update()
+            except Exception:
+                traceback.print_exc()
+
+    def _on_ui_config_change(self, key: str, delta: int):
+        agent = getattr(self, "agent_manager", None)
+        if agent is not None:
+            try:
+                if key == "max_steps":
+                    agent.set_max_steps(agent._max_steps + delta)
+                elif key == "max_duration":
+                    agent.set_max_duration(agent._max_duration + delta)
+                agent._emit_update()
+            except Exception:
+                traceback.print_exc()
+
 
 # ── Entry point ───────────────────────────────────────────────
 def _run_async(app: JarvisLive) -> None:
@@ -970,6 +1081,28 @@ def _run_async(app: JarvisLive) -> None:
 def main():
     if os.environ.get("TERM_PROGRAM") == "vscode":
         print("[JARVIS] VS Code icinden baslatildi.")
+
+    # ── Hardware detection at startup ──
+    try:
+        from core.hardware_detector import HardwareDetector
+        hw = HardwareDetector.detect_all()
+        print("[JARVIS] ── Hardware Report ──")
+        for line in hw.summary().split("\n"):
+            print(f"  {line}")
+        print("[JARVIS] ── ── ── ── ── ── ──")
+        if not hw.success() and hw.audio_input.status != "ok":
+            print("[JARVIS] ⚠️  No microphone detected — voice input disabled.")
+        if hw.display.status != "ok":
+            print(f"[JARVIS] ⚠️  No display — {hw.display.detail}")
+            print("[JARVIS] Tip: Run with --headless or use web_ui.py")
+    except ImportError:
+        print("[JARVIS] HardwareDetector not available, skipping.")
+
+    try:
+        from core.notification import notify
+        notify("Başlatıldı", "JARVIS hazır", priority="low")
+    except Exception:
+        pass
 
     ui = JarvisUI()
     app = JarvisLive(ui)
@@ -998,6 +1131,11 @@ def main():
         async_thread.join(timeout=3.0)
         ui.destroy()
         print("[JARVIS] Gorusmek uzere.")
+        try:
+            from core.notification import notify
+            notify("Kapatıldı", "Görüşmek üzere", priority="low")
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":

@@ -1,44 +1,82 @@
-# JARVIS Windows — Gerekli paketler
-# Gemini AI istemci (yeni SDK - multimodal.py, screen_vision.py)
+# J.A.R.V.I.S — Python Bağımlılıkları
+# =============================================================================
+# Kategori 1: ZORUNLU — uygulamanın çalışması için gereklidir
+# Kategori 2: OPSİYONEL — belirli modüller için gereklidir, yoksa bypass edilir
+# Kategori 3: GELİŞTİRME — sadece test/lint için
+# =============================================================================
+
+# ── Kategori 1: ZORUNLU ──────────────────────────────────────────────────────
+
+# Gemini AI SDK (yeni) — core/multimodal.py, actions/screen_vision.py, main.py
 google-genai>=1.0.0
-# Gemini AI istemci (eski SDK - core/multimodal.py fallback)
+
+# Gemini AI SDK (eski) — core/multimodal.py fallback
 google-generativeai>=0.8.0
-# Ses tanima (SpeechRecognition + pyaudio)
+
+# Ses tanıma (STT) — core/audio_system/stt_engine.py
 SpeechRecognition>=3.10.0
 pyaudio>=0.2.13
-# Ses giriş/çıkış (MicrophoneStream, noise-suppressor)
-sounddevice>=0.4.6
-# Whisper (lokal STT)
-faster-whisper>=1.0.0
-# Ollama HTTP streaming (istemci tarafi)
-httpx>=0.27.0
-# Sistem bilgisi
-psutil>=5.9.0
-# LSP — Type checking (dev)
-basedpyright>=1.39.0
-# UI
-Pillow>=10.0.0
-# HTTP istekleri
-requests>=2.31.0
-# Ekran / fare / klavye kontrolu
-pyautogui>=0.9.54
 
-# === ZORUNLU BILIMSAL KUTUPHANELER ===
-# Tüm ses/VAD/STT/WakeWord modülleri için gerekli
+# Ses giriş/çıkış (alternatif) — audio/microphone.py
+sounddevice>=0.4.6
+
+# Yerel STT — core/streaming_stt.py, core/audio_system/stt_engine.py
+faster-whisper>=1.0.0
+
+# Ollama HTTP API istemcisi — core/ollama_provider.py
+httpx>=0.27.0
+
+# Sistem bilgisi — actions/sys_info.py, system_doctor.py, process_manager.py, ui.py
+psutil>=5.9.0
+
+# UI görselleri — ui.py, actions/screen_vision.py, core/multimodal.py
+Pillow>=10.0.0
+
+# HTTP istekleri — actions/weather.py, browser.py, youtube_stats.py
+requests>=2.31.0
+
+# Bilimsel hesaplama (ses işleme, resampling) — core/ollama_provider.py
 numpy>=1.26.0
-# YAML yapılandırma dosyaları için (config/voices.yaml, wake_word.yaml)
+
+# Ses yeniden örnekleme — core/ollama_provider.py (scipy.signal.resample)
+scipy>=1.10.0
+
+# YAML yapılandırma — config/audio.yaml, core/voice_manager.py, core/wake_word.py
 pyyaml>=6.0
 
-# === OPSIYONEL BACKEND'LER ===
-# Kamera yakalama (cv2) - vision/camera_capture.py
-#opencv-python>=4.8.0
-# Silero VAD (PyTorch) - core/vad_engine.py (büyük ~2GB)
-#torch>=2.0.0
-# Dosya sistemi izleyici - actions/watchdog/file_watcher.py
-#watchdog>=4.0.0
-# Wake word: openWakeWord (önerilen)
+# ── Kategori 2: OPSİYONEL (lazy import, eksikse bypass) ─────────────────────
+
+# Wake word (birincil) — core/wake_word.py
 #openwakeword>=0.4.0
-# Wake word: Porcupine (Picovoice)
+
+# Wake word (ikincil/Picovoice) — core/wake_word.py
 #pvporcupine>=3.0.0
-# VAD: WebRTC (daha hizli, daha dogru)
+
+# VAD (WebRTC, Silero alternatifi) — core/vad_engine.py
 #webrtcvad>=2.0.6
+
+# Silero VAD (PyTorch, ~2GB) — core/vad_engine.py
+#torch>=2.0.0
+
+# Ekran/fare/klavye kontrolü — actions/windows_utils.py
+pyautogui>=0.9.54
+
+# Kamera yakalama — vision/camera_capture.py
+#opencv-python>=4.8.0
+
+# Dosya sistemi izleyici — actions/watchdog/file_watcher.py
+#watchdog>=4.0.0
+
+# Web UI — web_ui.py
+#pywebview>=4.0
+
+# TTS (pyttsx3 fallback) — core/audio_system/tts_engine.py
+#pyttsx3>=2.90
+
+# TTS (gTTS fallback) — core/audio_system/tts_engine.py
+#gTTS>=2.3.0
+
+# ── Kategori 3: GELİŞTİRME ───────────────────────────────────────────────────
+
+# LSP / Tip kontrolü (dev)
+basedpyright>=1.39.0

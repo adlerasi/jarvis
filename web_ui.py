@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 import threading
 import webview
@@ -94,7 +95,7 @@ class JarvisWebUI:
     def destroy(self):
         try:
             self.window.destroy()
-        except:
+        except Exception:
             pass
 
     def _run_js(self, js: str):

@@ -323,45 +323,51 @@ echo 'SKILL_VERSION = "2.0.0"' >> skills/demo/demo_skill.py
 
 ---
 
-## Mevcut Skill'ler (15 Adet)
+## Mevcut Skill'ler (18 Adet)
 
 | # | Skill | SKILL_ID | Klasör | Backend (actions/) |
 |---|-------|----------|--------|-------------------|
-| 1 | Tarayıcı | `browser` | `browser/` | `browser` |
-| 2 | Sistem Sağlığı | `system-health-v1` | `system_health/` | `system_doctor` |
-| 3 | Süreç Kontrol | `process-control-v1` | `process_control/` | `process_manager` |
-| 4 | Dosya Yöneticisi | `file-manager-v1` | `file_manager/` | `file_guardian` |
-| 5 | Ağ İzleme | `network-v1` | `network/` | `network_monitor` |
-| 6 | Zamanlayıcı | `scheduler-v1` | `scheduler/` | `system_cron` |
-| 7 | Servis Yönetimi | `services-v1` | `services/` | `service_monitor` |
-| 8 | Hava Durumu | `weather-v1` | `weather/` | `weather` |
-| 9 | YouTube | `youtube-v1` | `youtube/` | `youtube_stats`, `media` |
-| 10 | Ekran Analizi | `vision-v1` | `vision/` | `screen_vision` |
-| 11 | Takvim | `calendar-v1` | `calendar/` | `calendar` |
-| 12 | Hatırlatıcı | `reminders-v1` | `reminders/` | `reminders` |
-| 13 | WhatsApp | `whatsapp-v1` | `whatsapp/` | `whatsapp` |
-| 14 | Medya | `media-v1` | `media/` | `media` |
-| 15 | Demo | `demo-v1` | `demo/` | — |
+| 1 | Ajan | `agent-v1` | `agent/` | tool_registry |
+| 2 | Tarayıcı | `browser` | `browser/` | `browser` |
+| 3 | Takvim | `calendar-v1` | `calendar/` | `calendar` |
+| 4 | Debugging | `debugging-jarvis-v1` | `debugging_jarvis/` | — |
+| 5 | Dosya Yöneticisi | `file-manager-v1` | `file_manager/` | `file_guardian` |
+| 6 | Karşılama | `greeting-v1` | `greeting/` | — |
+| 7 | Medya | `media-v1` | `media/` | `media` |
+| 8 | Ağ İzleme | `network-v1` | `network/` | `network_monitor` |
+| 9 | Süreç Kontrol | `process-control-v1` | `process_control/` | `process_manager` |
+| 10 | Hatırlatıcı | `reminders-v1` | `reminders/` | `reminders` |
+| 11 | Zamanlayıcı | `scheduler-v1` | `scheduler/` | `system_cron` |
+| 12 | Servis Yönetimi | `services-v1` | `services/` | `service_monitor` |
+| 13 | Sistem Sağlığı | `system-health-v1` | `system_health/` | `system_doctor` |
+| 14 | Ekran Analizi | `vision-v1` | `vision/` | `screen_vision` |
+| 15 | Sesle Kodlama | `voice-coding-v1` | `voice_coding/` | — |
+| 16 | Hava Durumu | `weather-v1` | `weather/` | `weather` |
+| 17 | WhatsApp | `whatsapp-v1` | `whatsapp/` | `whatsapp` |
+| 18 | YouTube | `youtube-v1` | `youtube/` | `youtube_stats`, `media` |
 
 ### Routing Sırası
 
 SkillManager router'ları **kayıt sırasına göre** (alfabetik klasör sırası) dener:
 
-1. browser
-2. calendar-v1
-3. demo-v1
-4. file-manager-v1
-5. media-v1
-6. network-v1
-7. process-control-v1
-8. reminders-v1
-9. scheduler-v1
-10. services-v1
-11. system-health-v1
-12. vision-v1
-13. weather-v1
-14. whatsapp-v1
-15. youtube-v1
+1. agent
+2. browser
+3. calendar
+4. debugging_jarvis
+5. file_manager
+6. greeting
+7. media
+8. network
+9. process_control
+10. reminders
+11. scheduler
+12. services
+13. system_health
+14. vision
+15. voice_coding
+16. weather
+17. whatsapp
+18. youtube
 
 ---
 

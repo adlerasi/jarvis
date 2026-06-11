@@ -2,6 +2,8 @@
 Tarayıcı kontrolü — Windows varsayılan tarayıcısı ile çalışır.
 Alp Ünlü tarafından yapılmıştır — @alppunlu
 """
+from __future__ import annotations
+
 
 import re
 import urllib.parse

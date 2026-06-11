@@ -195,12 +195,16 @@ class StreamingTTS:
                 self.on_start()
 
             while self._running and not self._buffer.is_cancelled:
-                self._paused.wait()  # Block if paused
+                self._paused.wait()
                 sentence = self._buffer.get(timeout=0.5)
                 if sentence is None:
                     continue
                 self._current_sentence = sentence
-                self._play_sentence(sentence)
+                try:
+                    self._play_sentence(sentence)
+                except Exception as exc:
+                    print(f"[StreamingTTS] Worker sentence hatasi (devam): {exc}")
+                    traceback.print_exc()
                 self._current_sentence = None
 
         except Exception as exc:
@@ -210,12 +214,15 @@ class StreamingTTS:
         finally:
             self._running = False
             self._fire_done()
+            # Auto-restart if more data arrived while dying
+            if self._buffer.qsize() > 0 and not self._buffer.is_cancelled:
+                self._start_worker()
 
     def _play_sentence(self, sentence: str):
         """Play one sentence via existing TTS backend."""
         try:
             from actions.tts import speak_text
-            speak_text(sentence, blocking=True, ollama_voice=self.voice)
+            speak_text(sentence, blocking=True, voice=self.voice)
         except Exception as exc:
             print(f"[StreamingTTS] Oynatma hatasi: {exc}")
             traceback.print_exc()

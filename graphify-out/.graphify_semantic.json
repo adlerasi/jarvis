@@ -1,0 +1,762 @@
+{
+  "nodes": [
+    {
+      "id": "jarvis_core",
+      "label": "J.A.R.V.I.S Core System",
+      "file_type": "concept",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "main_jarvislive",
+      "label": "JarvisLive Main Controller",
+      "file_type": "code",
+      "source_file": "main.py",
+      "source_location": null
+    },
+    {
+      "id": "main_run",
+      "label": "Main Event Loop (run())",
+      "file_type": "code",
+      "source_file": "main.py",
+      "source_location": null
+    },
+    {
+      "id": "main_execute_tool",
+      "label": "Tool Execution Dispatcher",
+      "file_type": "code",
+      "source_file": "main.py",
+      "source_location": null
+    },
+    {
+      "id": "main_on_text_command",
+      "label": "Text Command Handler",
+      "file_type": "code",
+      "source_file": "main.py",
+      "source_location": null
+    },
+    {
+      "id": "provider_base",
+      "label": "BaseProvider Abstract Interface",
+      "file_type": "concept",
+      "source_file": "core/provider_base.py",
+      "source_location": null
+    },
+    {
+      "id": "gemini_provider",
+      "label": "Gemini Live API Provider",
+      "file_type": "code",
+      "source_file": "core/gemini_provider.py",
+      "source_location": null
+    },
+    {
+      "id": "ollama_provider",
+      "label": "Ollama HTTP Provider",
+      "file_type": "code",
+      "source_file": "core/ollama_provider.py",
+      "source_location": null
+    },
+    {
+      "id": "provider_abstraction_pattern",
+      "label": "Provider Abstraction Pattern",
+      "file_type": "rationale",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "audio_noise_suppressor",
+      "label": "RNNoise Noise Suppressor",
+      "file_type": "code",
+      "source_file": "audio/noise_suppressor.py",
+      "source_location": null
+    },
+    {
+      "id": "audio_microphone",
+      "label": "SoundDevice Microphone Stream",
+      "file_type": "code",
+      "source_file": "audio/microphone.py",
+      "source_location": null
+    },
+    {
+      "id": "audio_pipeline",
+      "label": "Audio Processing Pipeline",
+      "file_type": "concept",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "fahrettin_vad",
+      "label": "Fahrettin VAD System",
+      "file_type": "code",
+      "source_file": "core/fahrettin_vad.py",
+      "source_location": null
+    },
+    {
+      "id": "vad_engine",
+      "label": "VAD Engine (Silero/WebRTC/Energy)",
+      "file_type": "code",
+      "source_file": "core/vad_engine.py",
+      "source_location": null
+    },
+    {
+      "id": "wake_word",
+      "label": "Wake Word Detection Chain",
+      "file_type": "code",
+      "source_file": "core/wake_word.py",
+      "source_location": null
+    },
+    {
+      "id": "jarvis_ui",
+      "label": "JarvisUI Tkinter Interface",
+      "file_type": "code",
+      "source_file": "ui.py",
+      "source_location": null
+    },
+    {
+      "id": "orb_canvas",
+      "label": "Orb Particle Canvas",
+      "file_type": "code",
+      "source_file": "ui/orb_canvas.py",
+      "source_location": null
+    },
+    {
+      "id": "sound_manager",
+      "label": "Sound Effects Manager",
+      "file_type": "code",
+      "source_file": "ui/sound_manager.py",
+      "source_location": null
+    },
+    {
+      "id": "ui_state_machine",
+      "label": "UI State Machine",
+      "file_type": "concept",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "tool_registry",
+      "label": "Tool Registry (40 tools)",
+      "file_type": "code",
+      "source_file": "core/tool_registry.py",
+      "source_location": null
+    },
+    {
+      "id": "dict_dispatch_pattern",
+      "label": "Dict Dispatch Pattern",
+      "file_type": "rationale",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "skill_manager",
+      "label": "Skill Manager (singleton)",
+      "file_type": "code",
+      "source_file": "core/skill_manager.py",
+      "source_location": null
+    },
+    {
+      "id": "skill_router",
+      "label": "Skill Routing (route_x_request)",
+      "file_type": "concept",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "skill_hot_reload",
+      "label": "Skill Hot-Reload System",
+      "file_type": "concept",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "skill_pre_llm_gate",
+      "label": "Skill Pre-LLM Gate Pattern",
+      "file_type": "rationale",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "17_skills",
+      "label": "17 Active Skills",
+      "file_type": "concept",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "actions_layer",
+      "label": "Action Modules Layer",
+      "file_type": "concept",
+      "source_file": "actions/",
+      "source_location": null
+    },
+    {
+      "id": "open_app_module",
+      "label": "Open Application Module",
+      "file_type": "code",
+      "source_file": "actions/open_app.py",
+      "source_location": null
+    },
+    {
+      "id": "sys_info_module",
+      "label": "System Info Module",
+      "file_type": "code",
+      "source_file": "actions/sys_info.py",
+      "source_location": null
+    },
+    {
+      "id": "weather_module",
+      "label": "Weather Module",
+      "file_type": "code",
+      "source_file": "actions/weather.py",
+      "source_location": null
+    },
+    {
+      "id": "system_doctor_module",
+      "label": "System Doctor Module",
+      "file_type": "code",
+      "source_file": "actions/system_doctor.py",
+      "source_location": null
+    },
+    {
+      "id": "process_manager_module",
+      "label": "Process Manager Module",
+      "file_type": "code",
+      "source_file": "actions/process_manager.py",
+      "source_location": null
+    },
+    {
+      "id": "file_guardian_module",
+      "label": "File Guardian Module",
+      "file_type": "code",
+      "source_file": "actions/file_guardian.py",
+      "source_location": null
+    },
+    {
+      "id": "network_monitor_module",
+      "label": "Network Monitor Module",
+      "file_type": "code",
+      "source_file": "actions/network_monitor.py",
+      "source_location": null
+    },
+    {
+      "id": "system_cron_module",
+      "label": "System Cron Module",
+      "file_type": "code",
+      "source_file": "actions/system_cron.py",
+      "source_location": null
+    },
+    {
+      "id": "service_monitor_module",
+      "label": "Service Monitor Module",
+      "file_type": "code",
+      "source_file": "actions/service_monitor.py",
+      "source_location": null
+    },
+    {
+      "id": "memory_manager",
+      "label": "Memory Manager",
+      "file_type": "code",
+      "source_file": "memory/memory_manager.py",
+      "source_location": null
+    },
+    {
+      "id": "app_config",
+      "label": "App Configuration",
+      "file_type": "code",
+      "source_file": "app_config.py",
+      "source_location": null
+    },
+    {
+      "id": "security_architecture",
+      "label": "Security Architecture",
+      "file_type": "concept",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "shell_command_filter",
+      "label": "Shell Command Filtering",
+      "file_type": "code",
+      "source_file": "actions/shell.py",
+      "source_location": null
+    },
+    {
+      "id": "user_initiated_gate",
+      "label": "User-Initiated Gate Pattern",
+      "file_type": "rationale",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "os_detection_injection",
+      "label": "OS Detection in Prompt",
+      "file_type": "rationale",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "input_validation",
+      "label": "Input Validation Layer",
+      "file_type": "concept",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "thread_model",
+      "label": "Thread Model",
+      "file_type": "concept",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "asyncio_event_loop",
+      "label": "AsyncIO Event Loop",
+      "file_type": "concept",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "background_services",
+      "label": "Background Service Threads",
+      "file_type": "concept",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "test_suite",
+      "label": "Test Suite (1976 tests)",
+      "file_type": "concept",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "unittest_framework",
+      "label": "Unittest Framework",
+      "file_type": "concept",
+      "source_file": "",
+      "source_location": null
+    },
+    {
+      "id": "skill_test_files",
+      "label": "Skill Test Files (8 files)",
+      "file_type": "code",
+      "source_file": "tests/",
+      "source_location": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "main_jarvislive",
+      "target": "main_run",
+      "relation": "orchestrates",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main.py",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "main_jarvislive",
+      "target": "main_execute_tool",
+      "relation": "orchestrates",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main.py",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "main_jarvislive",
+      "target": "main_on_text_command",
+      "relation": "orchestrates",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main.py",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "main_run",
+      "target": "provider_abstraction_pattern",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/ARCHITECTURE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "provider_base",
+      "target": "provider_abstraction_pattern",
+      "relation": "defined_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "core/provider_base.py",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "gemini_provider",
+      "target": "provider_base",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "core/gemini_provider.py",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "ollama_provider",
+      "target": "provider_base",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "core/ollama_provider.py",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "main_run",
+      "target": "gemini_provider",
+      "relation": "instantiates",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main.py",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "main_run",
+      "target": "ollama_provider",
+      "relation": "instantiates",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main.py",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "audio_pipeline",
+      "target": "audio_noise_suppressor",
+      "relation": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "audio_pipeline",
+      "target": "audio_microphone",
+      "relation": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "audio_pipeline",
+      "target": "fahrettin_vad",
+      "relation": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "audio_pipeline",
+      "target": "wake_word",
+      "relation": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "ollama_provider",
+      "target": "audio_pipeline",
+      "relation": "uses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/ARCHITECTURE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "fahrettin_vad",
+      "target": "vad_engine",
+      "relation": "wraps",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "core/fahrettin_vad.py",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "main_execute_tool",
+      "target": "tool_registry",
+      "relation": "uses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main.py",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "tool_registry",
+      "target": "dict_dispatch_pattern",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "core/tool_registry.py",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "tool_registry",
+      "target": "actions_layer",
+      "relation": "delegates_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "tool_registry",
+      "target": "open_app_module",
+      "relation": "registers",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "core/tool_registry.py",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "tool_registry",
+      "target": "sys_info_module",
+      "relation": "registers",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "tool_registry",
+      "target": "weather_module",
+      "relation": "registers",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_manager",
+      "target": "skill_hot_reload",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "core/skill_manager.py",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_manager",
+      "target": "skill_pre_llm_gate",
+      "relation": "implements",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_manager",
+      "target": "skill_router",
+      "relation": "orchestrates",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_manager",
+      "target": "17_skills",
+      "relation": "manages",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_router",
+      "target": "skill_pre_llm_gate",
+      "relation": "rationale_for",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "main_on_text_command",
+      "target": "skill_manager",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main.py",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "jarvis_ui",
+      "target": "orb_canvas",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ui.py",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "jarvis_ui",
+      "target": "sound_manager",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "ui.py",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "jarvis_ui",
+      "target": "ui_state_machine",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/ARCHITECTURE.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "security_architecture",
+      "target": "shell_command_filter",
+      "relation": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "security_architecture",
+      "target": "user_initiated_gate",
+      "relation": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "security_architecture",
+      "target": "os_detection_injection",
+      "relation": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "security_architecture",
+      "target": "input_validation",
+      "relation": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "thread_model",
+      "target": "asyncio_event_loop",
+      "relation": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "thread_model",
+      "target": "background_services",
+      "relation": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "test_suite",
+      "target": "unittest_framework",
+      "relation": "uses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "test_suite",
+      "target": "skill_test_files",
+      "relation": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "background_services",
+      "target": "system_cron_module",
+      "relation": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "background_services",
+      "target": "file_guardian_module",
+      "relation": "includes",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "network_monitor_module",
+      "target": "actions_layer",
+      "relation": "belongs_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 15000,
+  "output_tokens": 5000
+}

@@ -2,6 +2,8 @@
 Komut çalıştırma — Windows PowerShell/cmd ortamı
 Alp Ünlü tarafından yapılmıştır — @alppunlu
 """
+from __future__ import annotations
+
 
 import subprocess
 

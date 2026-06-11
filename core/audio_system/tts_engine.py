@@ -251,7 +251,7 @@ class EdgeTTSEngine(BaseTTSEngine):
         if not self.is_available():
             return False
 
-        voice_id = self._voice_map.get(voice, "tr-TR-AhmetNeural")
+        voice_id = self._voice_map.get(voice or "tr-TR-AhmetNeural", "tr-TR-AhmetNeural")
 
         def _speak():
             try:

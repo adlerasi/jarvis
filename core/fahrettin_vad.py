@@ -92,9 +92,8 @@ class FahrettinVAD:
             if is_speech:
                 self._speech_frames += 1
 
-            # Collect metrics (lightweight)
-            if self.debug_log:
-                self._collect_metrics(audio_frame, sample_rate)
+            # Always collect RMS for mic level indicator (lightweight)
+            self._collect_metrics(audio_frame, sample_rate)
 
             return is_speech, confidence
 
@@ -119,6 +118,15 @@ class FahrettinVAD:
         self._errors = 0
 
     # ── Debug / metrics ────────────────────────────────────────────────────
+
+    def get_mic_level(self) -> float:
+        """Return normalized microphone level 0.0–1.0 for UI indicator."""
+        # RMS for 16-bit audio: typical silence < 50, speech 200–5000+
+        rms = self._last_rms
+        if rms < 1.0:
+            return 0.0
+        level = min(1.0, rms / 8000.0)
+        return level
 
     def get_debug_stats(self) -> Dict[str, Any]:
         """Return a snapshot of current VAD metrics for UI/logging."""

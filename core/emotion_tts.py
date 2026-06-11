@@ -156,7 +156,11 @@ class EmotionTTS:
 
             result = subprocess.run(cmd, input=text, text=True, capture_output=True, timeout=30)
             if result.returncode == 0 and Path(wav_path).exists():
-                subprocess.run(["aplay", "-q", wav_path], timeout=60)
+                import sounddevice as sd
+                from scipy.io import wavfile
+                sr, data = wavfile.read(wav_path)
+                sd.play(data, sr)
+                sd.wait()
         except Exception:
             traceback.print_exc()
         finally:

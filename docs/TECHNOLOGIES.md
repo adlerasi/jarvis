@@ -226,7 +226,7 @@ pyautogui>=0.9.54         # Ekran görüntüsü
 | Özellik | Detay |
 |---------|-------|
 | **Mekanizma** | Singleton, `skills/` altındaki tüm `route_*_request()` fonksiyonlarını otomatik keşfeder |
-| **14 skill yüklü** | browser, system_health, process_control, file_manager, network, scheduler, services, weather, youtube, vision, calendar, reminders, whatsapp, media |
+| **18 skill yüklü** | agent, browser, calendar, debugging_jarvis, file_manager, greeting, media, network, process_control, reminders, scheduler, services, system_health, vision, voice_coding, weather, whatsapp, youtube |
 | **Routing** | `_on_text_command()` önce `skill_manager.route()`, eşleşmezse LLM |
 | **Trigger pattern** | Regex + keyword eşleştirme, Türkçe karakterlerde ASCII fallback zorunlu |
 
@@ -234,20 +234,24 @@ pyautogui>=0.9.54         # Ekran görüntüsü
 
 | Skill | Backend Modül | Tetikleyici Örnek |
 |-------|---------------|-------------------|
+| `agent` | `core.tool_registry` | "gorev olustur", "senaryo calistir" |
 | `browser` | `actions.browser` | "youtube aç", "google'da ara" |
-| `system_health` | `actions.system_doctor` | "bilgisayarim yavas", "cpu kullanimi" |
-| `process_control` | `actions.process_manager` | "chrome'u kapat", "port 8080" |
-| `file_manager` | `actions.file_guardian` | "buyuk dosyalari bul", "downloads temizle" |
-| `weather` | `actions.weather` | "hava nasil", "Ankara sicaklik" |
-| `youtube` | `actions.youtube_stats`, `actions.media` | "kanalim nasil", "youtube sarki ac" |
-| `vision` | `actions.screen_vision` | "ekranda ne var", "bu hatayi oku" |
 | `calendar` | `actions.calendar` | "bugun takvimim", "toplanti ekle" |
-| `reminders` | `actions.reminders` | "hatirlatma ekle", "yapilacaklarim" |
-| `whatsapp` | `actions.whatsapp` | "anneye mesaj gonder", "ahmeti kaydet" |
+| `debugging_jarvis` | — | "debug", "sorun", "hata" |
+| `file_manager` | `actions.file_guardian` | "buyuk dosyalari bul", "downloads temizle" |
+| `greeting` | — | "merhaba", "selam", "naber" |
 | `media` | `actions.media` | "tarkan cal", "spotifyda jazz ac" |
 | `network` | `actions.network_monitor` | "internet durumu", "google'a ping" |
+| `process_control` | `actions.process_manager` | "chrome'u kapat", "port 8080" |
+| `reminders` | `actions.reminders` | "hatirlatma ekle", "yapilacaklarim" |
 | `scheduler` | `actions.system_cron` | "gorevlerim neler", "gorev ekle" |
 | `services` | `actions.service_monitor` | "calisan servisler", "mysql'i baslat" |
+| `system_health` | `actions.system_doctor` | "bilgisayarim yavas", "cpu kullanimi" |
+| `vision` | `actions.screen_vision` | "ekranda ne var", "bu hatayi oku" |
+| `voice_coding` | — | "kod", "kodla", "calistir" |
+| `weather` | `actions.weather` | "hava nasil", "Ankara sicaklik" |
+| `whatsapp` | `actions.whatsapp` | "anneye mesaj gonder", "ahmeti kaydet" |
+| `youtube` | `actions.youtube_stats`, `actions.media` | "kanalim nasil", "youtube sarki ac" |
 
 ---
 
@@ -269,7 +273,7 @@ pyautogui>=0.9.54         # Ekran görüntüsü
 | `unittest` | Python standart test framework |
 | `py_compile` | Syntax doğrulama |
 
-### Test Kapsamı (263 smoke test)
+### Test Kapsamı (1121 smoke test + 68 uzman testi, toplam 1189)
 
 ```
 TestProjectStructure

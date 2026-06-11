@@ -1,0 +1,1167 @@
+{
+  "/home/adler/Downloads/jarvis-windows/jarvis/basedpyrightconfig.json": {
+    "mtime": 1780800789.0666912,
+    "ast_hash": "ff00b9fd726e4e29c7836626b0c57f7a",
+    "semantic_hash": "ff00b9fd726e4e29c7836626b0c57f7a"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/app_config.py": {
+    "mtime": 1780768738.684971,
+    "ast_hash": "7ca6aebfc0e2af82fe9e72905292ec38",
+    "semantic_hash": "7ca6aebfc0e2af82fe9e72905292ec38"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_oww.py": {
+    "mtime": 1781007977.0295136,
+    "ast_hash": "2b0d73939ff11b9101a86ffc4ee31304",
+    "semantic_hash": "2b0d73939ff11b9101a86ffc4ee31304"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/web_ui.py": {
+    "mtime": 1781024119.009517,
+    "ast_hash": "08aa6a931dc0ef7b0429e42d7a33a6bd",
+    "semantic_hash": "08aa6a931dc0ef7b0429e42d7a33a6bd"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/setup.ps1": {
+    "mtime": 1781022562.4707568,
+    "ast_hash": "e5639e8cdd126e68e2175b63a9d25153",
+    "semantic_hash": "e5639e8cdd126e68e2175b63a9d25153"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/build.sh": {
+    "mtime": 1780781235.0099738,
+    "ast_hash": "3869958243a8d1a5e66a95371c7f734e",
+    "semantic_hash": "3869958243a8d1a5e66a95371c7f734e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_audio.py": {
+    "mtime": 1781007714.1578476,
+    "ast_hash": "c41a60c7a8cb82b61a902543f7791a78",
+    "semantic_hash": "c41a60c7a8cb82b61a902543f7791a78"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/pyrightconfig.json": {
+    "mtime": 1780800997.062835,
+    "ast_hash": "71d8cae2ff141557a3e82a11c4fa9a3a",
+    "semantic_hash": "71d8cae2ff141557a3e82a11c4fa9a3a"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_pyaudio_play.py": {
+    "mtime": 1780973977.7855623,
+    "ast_hash": "7cbc395e06c67bb0ea9db39108243df0",
+    "semantic_hash": "7cbc395e06c67bb0ea9db39108243df0"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/ui.py": {
+    "mtime": 1781025294.4800081,
+    "ast_hash": "23710c287e644de792daeeb2f6b639b2",
+    "semantic_hash": "23710c287e644de792daeeb2f6b639b2"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_stt_user2.py": {
+    "mtime": 1781008739.6741765,
+    "ast_hash": "37af733a378c0b0b1ddd515a49c8af39",
+    "semantic_hash": "37af733a378c0b0b1ddd515a49c8af39"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_sudo_play.py": {
+    "mtime": 1780974101.4811187,
+    "ast_hash": "f5d0e3de959e4973ab718994bbfc57ce",
+    "semantic_hash": "f5d0e3de959e4973ab718994bbfc57ce"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/build.ps1": {
+    "mtime": 1780781250.9114933,
+    "ast_hash": "73f1def724edda87fa7d28134ae3751b",
+    "semantic_hash": "73f1def724edda87fa7d28134ae3751b"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_mic_nosudo.py": {
+    "mtime": 1781008050.1193671,
+    "ast_hash": "fcc91754da9905a4afc76b1497f469b6",
+    "semantic_hash": "fcc91754da9905a4afc76b1497f469b6"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_tts_play.py": {
+    "mtime": 1781010031.6422462,
+    "ast_hash": "597649b94c7d50f0f27c0487b7ada2a3",
+    "semantic_hash": "597649b94c7d50f0f27c0487b7ada2a3"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_mic_stt.py": {
+    "mtime": 1781008971.7239273,
+    "ast_hash": "7ed20a5d70f1f0c313f2ef2f76d655ef",
+    "semantic_hash": "7ed20a5d70f1f0c313f2ef2f76d655ef"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_stt_user.py": {
+    "mtime": 1781008731.8906226,
+    "ast_hash": "f0a9687a769f123fc717431a7663923e",
+    "semantic_hash": "f0a9687a769f123fc717431a7663923e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/replace_stt.py": {
+    "mtime": 1781006176.9680436,
+    "ast_hash": "606b87cc2099ea2b0841070ce04976cf",
+    "semantic_hash": "606b87cc2099ea2b0841070ce04976cf"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_mic.py": {
+    "mtime": 1781007956.216986,
+    "ast_hash": "c5c2abdb9c8937597ecc231c200d0872",
+    "semantic_hash": "c5c2abdb9c8937597ecc231c200d0872"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_audio2.py": {
+    "mtime": 1781007731.648291,
+    "ast_hash": "27c98e326a4dfb70e3f4de8d96cf8add",
+    "semantic_hash": "27c98e326a4dfb70e3f4de8d96cf8add"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_audio3.py": {
+    "mtime": 1781007842.3450983,
+    "ast_hash": "f2f91fbaf7326a35725ee488795ed1ce",
+    "semantic_hash": "f2f91fbaf7326a35725ee488795ed1ce"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_ui_stt.py": {
+    "mtime": 1781009113.724939,
+    "ast_hash": "5aec4a2be6598c6ef67dbb8743244143",
+    "semantic_hash": "5aec4a2be6598c6ef67dbb8743244143"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_mic_user.py": {
+    "mtime": 1781008364.7993472,
+    "ast_hash": "ee3d0ade4d1e4616e30c0b94b2b7938d",
+    "semantic_hash": "ee3d0ade4d1e4616e30c0b94b2b7938d"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/main.py": {
+    "mtime": 1781024119.0065904,
+    "ast_hash": "7c6a5c08cb0b58cb20d49f176978db8d",
+    "semantic_hash": "7c6a5c08cb0b58cb20d49f176978db8d"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_tts_user.py": {
+    "mtime": 1781008373.9175785,
+    "ast_hash": "0c49a65a4739e98131fa14ef30827c85",
+    "semantic_hash": "0c49a65a4739e98131fa14ef30827c85"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_full_pipeline.py": {
+    "mtime": 1781009068.3620625,
+    "ast_hash": "7eb30d4e94548138437ce7296e16a2ad",
+    "semantic_hash": "7eb30d4e94548138437ce7296e16a2ad"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_vad.py": {
+    "mtime": 1781010775.6827984,
+    "ast_hash": "07ab8c90ca96901986a5560119a1559c",
+    "semantic_hash": "07ab8c90ca96901986a5560119a1559c"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_mic_stt2.py": {
+    "mtime": 1781008990.3303218,
+    "ast_hash": "0f2a008134d3fa0fad5399d8d676b54e",
+    "semantic_hash": "0f2a008134d3fa0fad5399d8d676b54e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/voice/faster-whisper-large-backup/config.json": {
+    "mtime": 1780182648.2167478,
+    "ast_hash": "29b60e476763ccdf41146d977ed1e0d6",
+    "semantic_hash": "29b60e476763ccdf41146d977ed1e0d6"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/voice/faster-whisper-large-backup/vocabulary.json": {
+    "mtime": 1780182648.5854957,
+    "ast_hash": "e633a16859027cca6d917b647ae34a55",
+    "semantic_hash": "e633a16859027cca6d917b647ae34a55"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/voice/faster-whisper-large-backup/tokenizer.json": {
+    "mtime": 1780182649.2345157,
+    "ast_hash": "5e5ac4064acca1766dd7accd0ab0e4b6",
+    "semantic_hash": "5e5ac4064acca1766dd7accd0ab0e4b6"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/voice/Fahrettin-TTS/tr_TR-fahrettin-medium.onnx.json": {
+    "mtime": 1780241030.702711,
+    "ast_hash": "38b7beb509cb459da3c8f95841a59435",
+    "semantic_hash": "38b7beb509cb459da3c8f95841a59435"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/voice/faster-whisper/config.json": {
+    "mtime": 1780759773.2099464,
+    "ast_hash": "6b09a90a9be263e3c2d3df31587c5554",
+    "semantic_hash": "6b09a90a9be263e3c2d3df31587c5554"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/voice/faster-whisper/vocabulary.json": {
+    "mtime": 1780843270.6134741,
+    "ast_hash": "7c260c8a42786e63fa5a6cdf0ae4af49",
+    "semantic_hash": "7c260c8a42786e63fa5a6cdf0ae4af49"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/voice/faster-whisper/tokenizer.json": {
+    "mtime": 1780759774.2402275,
+    "ast_hash": "10268c850d335f758d616c3465b8de48",
+    "semantic_hash": "10268c850d335f758d616c3465b8de48"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/config/api_keys.json": {
+    "mtime": 1781029645.795738,
+    "ast_hash": "c6829a6651a53f63d99b1d90f25b2d33",
+    "semantic_hash": "c6829a6651a53f63d99b1d90f25b2d33"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/config/api_keys.example.json": {
+    "mtime": 1780768702.9312303,
+    "ast_hash": "a1c85cc3ba8dd971589ea4f4b78d98ac",
+    "semantic_hash": "a1c85cc3ba8dd971589ea4f4b78d98ac"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/disk_predictor.py": {
+    "mtime": 1780801166.144345,
+    "ast_hash": "66e8346d46665c15ca64870a0d65874a",
+    "semantic_hash": "66e8346d46665c15ca64870a0d65874a"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/tts.py": {
+    "mtime": 1781023798.7882857,
+    "ast_hash": "1457327721d3172da080ba184a334457",
+    "semantic_hash": "1457327721d3172da080ba184a334457"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/calendar.py": {
+    "mtime": 1780801166.1435175,
+    "ast_hash": "e9661b309fa6a5db25166ee9892d1062",
+    "semantic_hash": "e9661b309fa6a5db25166ee9892d1062"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/reminders.py": {
+    "mtime": 1780801159.3864052,
+    "ast_hash": "6e69a6b5ff219ee56487223f649f1936",
+    "semantic_hash": "6e69a6b5ff219ee56487223f649f1936"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/system_cron.py": {
+    "mtime": 1780801192.2260814,
+    "ast_hash": "92a784c9d6dcf988d97c1e93ea375200",
+    "semantic_hash": "92a784c9d6dcf988d97c1e93ea375200"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/open_app.py": {
+    "mtime": 1781024119.0047612,
+    "ast_hash": "23433507d918f6fdfa92efeb049f7a20",
+    "semantic_hash": "23433507d918f6fdfa92efeb049f7a20"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/cron_web_ui.py": {
+    "mtime": 1780800816.8797014,
+    "ast_hash": "cac4a24fd9de8dfb9bcaaeb8d7427a1e",
+    "semantic_hash": "cac4a24fd9de8dfb9bcaaeb8d7427a1e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/network_monitor.py": {
+    "mtime": 1780801166.1412866,
+    "ast_hash": "168885709fdb597c63950ba424f67b0c",
+    "semantic_hash": "168885709fdb597c63950ba424f67b0c"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/location.py": {
+    "mtime": 1780838797.9613721,
+    "ast_hash": "f72a802848ff8750576c6af92cc6839f",
+    "semantic_hash": "f72a802848ff8750576c6af92cc6839f"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/service_monitor.py": {
+    "mtime": 1780801159.3868933,
+    "ast_hash": "76977f8ec8385a83e1c4480ccbbce02d",
+    "semantic_hash": "76977f8ec8385a83e1c4480ccbbce02d"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/process_manager.py": {
+    "mtime": 1780801166.1412008,
+    "ast_hash": "42a6effcee5dd57c85f038dbe1e2db2a",
+    "semantic_hash": "42a6effcee5dd57c85f038dbe1e2db2a"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/whatsapp.py": {
+    "mtime": 1780801159.3867736,
+    "ast_hash": "19c48e95d842f1354412978433c91f0e",
+    "semantic_hash": "19c48e95d842f1354412978433c91f0e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/shell.py": {
+    "mtime": 1781024119.0049136,
+    "ast_hash": "39b1194609318a2a58e2a99e04ae1d4b",
+    "semantic_hash": "39b1194609318a2a58e2a99e04ae1d4b"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/sys_info.py": {
+    "mtime": 1781024119.005924,
+    "ast_hash": "d0c728388626f1dec2cf505a3f7a6e94",
+    "semantic_hash": "d0c728388626f1dec2cf505a3f7a6e94"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/screen_vision.py": {
+    "mtime": 1780801166.1409452,
+    "ast_hash": "9d0439ea47c3f3eb37974d8eaef4d672",
+    "semantic_hash": "9d0439ea47c3f3eb37974d8eaef4d672"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/network_anomaly.py": {
+    "mtime": 1780801166.1447148,
+    "ast_hash": "9d31e120eeaa78bb45d05d1158b968f3",
+    "semantic_hash": "9d31e120eeaa78bb45d05d1158b968f3"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/windows_utils.py": {
+    "mtime": 1781023919.935418,
+    "ast_hash": "f7b0490e89b3a8ba3f5a5a36ffe01569",
+    "semantic_hash": "f7b0490e89b3a8ba3f5a5a36ffe01569"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/process_timeline.py": {
+    "mtime": 1780801166.1407645,
+    "ast_hash": "4149f559304ba93a598da5c1d26971d9",
+    "semantic_hash": "4149f559304ba93a598da5c1d26971d9"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/browser.py": {
+    "mtime": 1781024119.0030491,
+    "ast_hash": "f2fbe618ff88686890c7e2cf45943a10",
+    "semantic_hash": "f2fbe618ff88686890c7e2cf45943a10"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/media.py": {
+    "mtime": 1780387512.0,
+    "ast_hash": "63a355c118d2f7b98f51273dacbae667",
+    "semantic_hash": "63a355c118d2f7b98f51273dacbae667"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/youtube_stats.py": {
+    "mtime": 1780801166.144504,
+    "ast_hash": "8c32d48188a258ba43cc698697cb13a8",
+    "semantic_hash": "8c32d48188a258ba43cc698697cb13a8"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/file_guardian.py": {
+    "mtime": 1780801166.1448789,
+    "ast_hash": "a1cb04d15f22de2955c9329d79e18aab",
+    "semantic_hash": "a1cb04d15f22de2955c9329d79e18aab"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/__init__.py": {
+    "mtime": 1780387512.0,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/weather.py": {
+    "mtime": 1780801166.1447718,
+    "ast_hash": "95df676ac56f599076457418380a71de",
+    "semantic_hash": "95df676ac56f599076457418380a71de"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/health.py": {
+    "mtime": 1781024119.003397,
+    "ast_hash": "3664fab06f0cd6ada4b464cef3c7f60c",
+    "semantic_hash": "3664fab06f0cd6ada4b464cef3c7f60c"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/system_doctor.py": {
+    "mtime": 1780786098.3149076,
+    "ast_hash": "3cf8a468df61d467c5bb44559f1c58ed",
+    "semantic_hash": "3cf8a468df61d467c5bb44559f1c58ed"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/actions/watchdog/file_watcher.py": {
+    "mtime": 1780861666.576166,
+    "ast_hash": "850bd111f843b43268809d0b473f0051",
+    "semantic_hash": "850bd111f843b43268809d0b473f0051"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_text_utils.py": {
+    "mtime": 1781024938.0838912,
+    "ast_hash": "1774bebad85dce28823044116018a9d1",
+    "semantic_hash": "1774bebad85dce28823044116018a9d1"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_fahrettin_vad.py": {
+    "mtime": 1781027352.8155503,
+    "ast_hash": "f03cfd95005f9882c300ad791dc09e75",
+    "semantic_hash": "f03cfd95005f9882c300ad791dc09e75"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_streaming_tts.py": {
+    "mtime": 1781027411.8086088,
+    "ast_hash": "85f19bb846453f5e969f1a63cd232def",
+    "semantic_hash": "85f19bb846453f5e969f1a63cd232def"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_emotion_tts.py": {
+    "mtime": 1781027632.4315896,
+    "ast_hash": "1a9814f3dfc3ddfe691149c796afde7e",
+    "semantic_hash": "1a9814f3dfc3ddfe691149c796afde7e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_sys_info.py": {
+    "mtime": 1781024938.0688486,
+    "ast_hash": "76e09f2505b4a7e43b545492fd83f4b9",
+    "semantic_hash": "76e09f2505b4a7e43b545492fd83f4b9"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_provider_base.py": {
+    "mtime": 1781028979.9579651,
+    "ast_hash": "adb1ad97548b042b30433d2d3f528e2d",
+    "semantic_hash": "adb1ad97548b042b30433d2d3f528e2d"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_voice_memory.py": {
+    "mtime": 1781038088.0387318,
+    "ast_hash": "c29a74db6ff8d15a61d9e85faa13938d",
+    "semantic_hash": "c29a74db6ff8d15a61d9e85faa13938d"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_system_doctor.py": {
+    "mtime": 1781024119.0121372,
+    "ast_hash": "cf4e6b8d8c0057a58e6194906c3fae01",
+    "semantic_hash": "cf4e6b8d8c0057a58e6194906c3fae01"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_screen_vision.py": {
+    "mtime": 1781024938.079447,
+    "ast_hash": "e0e2539b96be9d7f3a47d5874e8a38e4",
+    "semantic_hash": "e0e2539b96be9d7f3a47d5874e8a38e4"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_media.py": {
+    "mtime": 1781024938.078569,
+    "ast_hash": "998311cd0bb1d21a3ee6c2a7bee04634",
+    "semantic_hash": "998311cd0bb1d21a3ee6c2a7bee04634"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_skills.py": {
+    "mtime": 1781024959.548059,
+    "ast_hash": "22102364d7ebc19a0507c6270435ac23",
+    "semantic_hash": "22102364d7ebc19a0507c6270435ac23"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_weather.py": {
+    "mtime": 1781024938.0717027,
+    "ast_hash": "0bb16afcf3efdc19e8984ef8b33985ee",
+    "semantic_hash": "0bb16afcf3efdc19e8984ef8b33985ee"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_health.py": {
+    "mtime": 1781024938.068417,
+    "ast_hash": "7e97cc07554e50c310d3f71d27a5e25b",
+    "semantic_hash": "7e97cc07554e50c310d3f71d27a5e25b"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_reminders.py": {
+    "mtime": 1781024938.0740232,
+    "ast_hash": "4198fd2cb77942c1decb2ac5ab7d3705",
+    "semantic_hash": "4198fd2cb77942c1decb2ac5ab7d3705"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_proactive_voice.py": {
+    "mtime": 1781029092.1284685,
+    "ast_hash": "edc63549792180ffe6c8cbe9abfb0d4b",
+    "semantic_hash": "edc63549792180ffe6c8cbe9abfb0d4b"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_disk_predictor.py": {
+    "mtime": 1781027704.9919052,
+    "ast_hash": "1dd76d8383a193c623085628e258441d",
+    "semantic_hash": "1dd76d8383a193c623085628e258441d"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_cron_web_ui.py": {
+    "mtime": 1781027964.0591824,
+    "ast_hash": "9056d86c042cb5afb5cfe61f53900d5d",
+    "semantic_hash": "9056d86c042cb5afb5cfe61f53900d5d"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_whatsapp.py": {
+    "mtime": 1781024938.07775,
+    "ast_hash": "4a2900b26907b1d394b383d2b003b232",
+    "semantic_hash": "4a2900b26907b1d394b383d2b003b232"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_draw_utils.py": {
+    "mtime": 1781028747.4303966,
+    "ast_hash": "0c3efbb0766c48696a1d0a94c49cee8e",
+    "semantic_hash": "0c3efbb0766c48696a1d0a94c49cee8e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_vad_engine.py": {
+    "mtime": 1781027353.35556,
+    "ast_hash": "9a96ef456ca187c997a86d0b1032d983",
+    "semantic_hash": "9a96ef456ca187c997a86d0b1032d983"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_audio_system.py": {
+    "mtime": 1781029472.0448709,
+    "ast_hash": "cf1c1cd2d6c70d3771e70d4468b69747",
+    "semantic_hash": "cf1c1cd2d6c70d3771e70d4468b69747"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_conversation_transcript.py": {
+    "mtime": 1781038000.9960115,
+    "ast_hash": "2656b7966ebf5ee85f4f006d030c0d7a",
+    "semantic_hash": "2656b7966ebf5ee85f4f006d030c0d7a"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_ui_text_utils.py": {
+    "mtime": 1781037975.5938022,
+    "ast_hash": "04e2bb76861c844bb7c0498e8a71cce8",
+    "semantic_hash": "04e2bb76861c844bb7c0498e8a71cce8"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_service_monitor.py": {
+    "mtime": 1781028127.195082,
+    "ast_hash": "6db2170cfae9f674ef3da327b7626363",
+    "semantic_hash": "6db2170cfae9f674ef3da327b7626363"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_local_llm.py": {
+    "mtime": 1781028967.6319177,
+    "ast_hash": "a277c9389fc22d3503a32f33fdb5e02d",
+    "semantic_hash": "a277c9389fc22d3503a32f33fdb5e02d"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_thinking_aloud.py": {
+    "mtime": 1781029080.763412,
+    "ast_hash": "986e27ec568ff61963821a83b5295ebd",
+    "semantic_hash": "986e27ec568ff61963821a83b5295ebd"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_main.py": {
+    "mtime": 1781024938.070128,
+    "ast_hash": "7728c9d5bd572f418e281e73544efe83",
+    "semantic_hash": "7728c9d5bd572f418e281e73544efe83"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_network_anomaly.py": {
+    "mtime": 1781027942.4708693,
+    "ast_hash": "f73ac9152b3db82cf89fa06584ef257a",
+    "semantic_hash": "f73ac9152b3db82cf89fa06584ef257a"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_config.py": {
+    "mtime": 1781024938.0663412,
+    "ast_hash": "951f0cbadb5c45523362d9984d0d7f50",
+    "semantic_hash": "951f0cbadb5c45523362d9984d0d7f50"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_sound_manager.py": {
+    "mtime": 1781028644.713418,
+    "ast_hash": "40bb5954cfdcee75a5f525e287afc55c",
+    "semantic_hash": "40bb5954cfdcee75a5f525e287afc55c"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_browser.py": {
+    "mtime": 1781024938.0748718,
+    "ast_hash": "73bc4e49c76e9dd5d5c9a62094313372",
+    "semantic_hash": "73bc4e49c76e9dd5d5c9a62094313372"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_actions.py": {
+    "mtime": 1781024959.5475206,
+    "ast_hash": "806260973eaf9704bbc7933f089a2cf0",
+    "semantic_hash": "806260973eaf9704bbc7933f089a2cf0"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_noise_suppressor.py": {
+    "mtime": 1781024938.0860455,
+    "ast_hash": "1e42b11488748a9116db487531db251f",
+    "semantic_hash": "1e42b11488748a9116db487531db251f"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_streaming_stt.py": {
+    "mtime": 1781027318.1099293,
+    "ast_hash": "3fb160666e7b6aa73bbd6f6347cc007c",
+    "semantic_hash": "3fb160666e7b6aa73bbd6f6347cc007c"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_youtube.py": {
+    "mtime": 1781024938.0672703,
+    "ast_hash": "260cd48a41cf2261b39c4dacd7db8020",
+    "semantic_hash": "260cd48a41cf2261b39c4dacd7db8020"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_memory.py": {
+    "mtime": 1781024938.0678782,
+    "ast_hash": "2b329b894eb8b6222b85a90870609715",
+    "semantic_hash": "2b329b894eb8b6222b85a90870609715"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_location.py": {
+    "mtime": 1781027949.2096508,
+    "ast_hash": "b5423591d4209d91de23f2c4e645c30e",
+    "semantic_hash": "b5423591d4209d91de23f2c4e645c30e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_shell.py": {
+    "mtime": 1781024938.0761392,
+    "ast_hash": "38a9d22f008478dbde0ee8d23aa35337",
+    "semantic_hash": "38a9d22f008478dbde0ee8d23aa35337"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_file_watcher.py": {
+    "mtime": 1781027935.8030891,
+    "ast_hash": "19fad395b5337c4e6a762e50db2aff5e",
+    "semantic_hash": "19fad395b5337c4e6a762e50db2aff5e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_voice_manager.py": {
+    "mtime": 1781029105.8235378,
+    "ast_hash": "3ad42f29137fd1b9afafcfd60a1fd479",
+    "semantic_hash": "3ad42f29137fd1b9afafcfd60a1fd479"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/__init__.py": {
+    "mtime": 1780766831.5254593,
+    "ast_hash": "d50599db43e5b78dac48bc890b8e5b37",
+    "semantic_hash": "d50599db43e5b78dac48bc890b8e5b37"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_tts.py": {
+    "mtime": 1781024938.0705733,
+    "ast_hash": "e27db613f0004ff2eb625236558bca6c",
+    "semantic_hash": "e27db613f0004ff2eb625236558bca6c"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_microphone.py": {
+    "mtime": 1781029360.1040764,
+    "ast_hash": "171736bff81d3f3111bc07ffb327989e",
+    "semantic_hash": "171736bff81d3f3111bc07ffb327989e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_calendar.py": {
+    "mtime": 1781025550.8893857,
+    "ast_hash": "ab08cabf9d78d1a2e4a5ffe92a81a1ba",
+    "semantic_hash": "ab08cabf9d78d1a2e4a5ffe92a81a1ba"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_open_app.py": {
+    "mtime": 1781024938.072203,
+    "ast_hash": "b1729aef3e0d69b28f212dd62faffe1c",
+    "semantic_hash": "b1729aef3e0d69b28f212dd62faffe1c"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_audio_buffer.py": {
+    "mtime": 1781027571.2524824,
+    "ast_hash": "ca65d624162851fd50e465b2414d0e77",
+    "semantic_hash": "ca65d624162851fd50e465b2414d0e77"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_barge_in.py": {
+    "mtime": 1781027517.7705166,
+    "ast_hash": "8dab10d5d2741ca9788d0237dfb36b02",
+    "semantic_hash": "8dab10d5d2741ca9788d0237dfb36b02"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/conftest.py": {
+    "mtime": 1781024119.0096078,
+    "ast_hash": "702f20991159a00105a4ad67603c6a9f",
+    "semantic_hash": "702f20991159a00105a4ad67603c6a9f"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_process_manager.py": {
+    "mtime": 1781024119.0098846,
+    "ast_hash": "21f959a1035944c21949d072141ea34b",
+    "semantic_hash": "21f959a1035944c21949d072141ea34b"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_network_monitor.py": {
+    "mtime": 1781024119.0097818,
+    "ast_hash": "ff2b59754eae43f2a4349202ff0ee822",
+    "semantic_hash": "ff2b59754eae43f2a4349202ff0ee822"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_process_timeline.py": {
+    "mtime": 1781027718.204145,
+    "ast_hash": "65ae0abef7989fb8b891848ec5dda438",
+    "semantic_hash": "65ae0abef7989fb8b891848ec5dda438"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_smoke.py": {
+    "mtime": 1781037958.783664,
+    "ast_hash": "44dcb16d2f07766fe7e0684a7ef24d40",
+    "semantic_hash": "44dcb16d2f07766fe7e0684a7ef24d40"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_orb_canvas.py": {
+    "mtime": 1781028494.6008604,
+    "ast_hash": "a8310781ca161e5dc808afbaf30bd47e",
+    "semantic_hash": "a8310781ca161e5dc808afbaf30bd47e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_file_guardian.py": {
+    "mtime": 1781024119.0097039,
+    "ast_hash": "47fdc697a333ae6010ecb632ce711b00",
+    "semantic_hash": "47fdc697a333ae6010ecb632ce711b00"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_windows_utils.py": {
+    "mtime": 1781024938.0710118,
+    "ast_hash": "26038d8e5c97b08a2e3a7635dfe70c85",
+    "semantic_hash": "26038d8e5c97b08a2e3a7635dfe70c85"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_system_cron.py": {
+    "mtime": 1781024119.0120156,
+    "ast_hash": "6ddd3cbfacef11d7d02f6ef7679697bf",
+    "semantic_hash": "6ddd3cbfacef11d7d02f6ef7679697bf"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_ui.py": {
+    "mtime": 1781025448.938708,
+    "ast_hash": "f97d7354e5339034e9660b0ad79b7994",
+    "semantic_hash": "f97d7354e5339034e9660b0ad79b7994"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_wake_word.py": {
+    "mtime": 1781027551.361123,
+    "ast_hash": "308c09eb5de9e133903797d6d3330b79",
+    "semantic_hash": "308c09eb5de9e133903797d6d3330b79"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/tests/test_tool_registry.py": {
+    "mtime": 1781024938.084962,
+    "ast_hash": "b5fc513cc5ea098f3c6c653d681feb68",
+    "semantic_hash": "b5fc513cc5ea098f3c6c653d681feb68"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/provider_base.py": {
+    "mtime": 1780955185.71968,
+    "ast_hash": "79aac4766676ef4939f4850fc39c54a1",
+    "semantic_hash": "79aac4766676ef4939f4850fc39c54a1"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/text_utils.py": {
+    "mtime": 1780928818.2851496,
+    "ast_hash": "24ad1d83149dc9e378cfb53592058189",
+    "semantic_hash": "24ad1d83149dc9e378cfb53592058189"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/emotion_tts.py": {
+    "mtime": 1780853791.2569504,
+    "ast_hash": "586bd28bd140e4157ae8a77423b3e5dc",
+    "semantic_hash": "586bd28bd140e4157ae8a77423b3e5dc"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/streaming_tts.py": {
+    "mtime": 1781023528.2471933,
+    "ast_hash": "7f5da0d9780e3f50a149068eecf64311",
+    "semantic_hash": "7f5da0d9780e3f50a149068eecf64311"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/skill_manager.py": {
+    "mtime": 1780861763.5232494,
+    "ast_hash": "391867c49d4166db0ccf8fac1e64f507",
+    "semantic_hash": "391867c49d4166db0ccf8fac1e64f507"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/audio_buffer.py": {
+    "mtime": 1780840532.4240198,
+    "ast_hash": "842ca13bd89dc7c360ef6d4a40bb69a7",
+    "semantic_hash": "842ca13bd89dc7c360ef6d4a40bb69a7"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/thinking_aloud.py": {
+    "mtime": 1781023528.8281465,
+    "ast_hash": "75e6458b75ae3175f3c0c97c74af406e",
+    "semantic_hash": "75e6458b75ae3175f3c0c97c74af406e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/tool_registry.py": {
+    "mtime": 1780885803.1878684,
+    "ast_hash": "e2e5bb0f1f3b25f1a01ad7afbd42db8d",
+    "semantic_hash": "e2e5bb0f1f3b25f1a01ad7afbd42db8d"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/streaming_stt.py": {
+    "mtime": 1780928752.2534912,
+    "ast_hash": "0df50c553c2e37581d846a0505487595",
+    "semantic_hash": "0df50c553c2e37581d846a0505487595"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/multimodal.py": {
+    "mtime": 1780861901.1221852,
+    "ast_hash": "4fc0667cacedbf25f183960bab4e283e",
+    "semantic_hash": "4fc0667cacedbf25f183960bab4e283e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/fahrettin_vad.py": {
+    "mtime": 1781025100.8345182,
+    "ast_hash": "f0aa309ae229c8a58b401f65a220be27",
+    "semantic_hash": "f0aa309ae229c8a58b401f65a220be27"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/voice_manager.py": {
+    "mtime": 1780840691.0400534,
+    "ast_hash": "aaa5074a2100a84cf884476e65caff0a",
+    "semantic_hash": "aaa5074a2100a84cf884476e65caff0a"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/vad_engine.py": {
+    "mtime": 1781022105.798255,
+    "ast_hash": "43ab5037c801705ae6658660bf667527",
+    "semantic_hash": "43ab5037c801705ae6658660bf667527"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/wake_word.py": {
+    "mtime": 1781022354.80286,
+    "ast_hash": "c96f29a9daf2ed221c565ec3f504e522",
+    "semantic_hash": "c96f29a9daf2ed221c565ec3f504e522"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/local_llm.py": {
+    "mtime": 1780840925.769047,
+    "ast_hash": "a57b4617aa75c8c7d568217b0c6c3e9e",
+    "semantic_hash": "a57b4617aa75c8c7d568217b0c6c3e9e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/__init__.py": {
+    "mtime": 1780928899.3902347,
+    "ast_hash": "35979de9e412f71889cbde90d101b835",
+    "semantic_hash": "35979de9e412f71889cbde90d101b835"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/proactive_voice.py": {
+    "mtime": 1781023527.617244,
+    "ast_hash": "6938a3fcff07a189f1c9ebc105c7bfd0",
+    "semantic_hash": "6938a3fcff07a189f1c9ebc105c7bfd0"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/barge_in.py": {
+    "mtime": 1780851596.826973,
+    "ast_hash": "188089dfe6c89a5ad688c3d59dec473b",
+    "semantic_hash": "188089dfe6c89a5ad688c3d59dec473b"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/gemini_provider.py": {
+    "mtime": 1780972667.734436,
+    "ast_hash": "82490889862b9ba72f02231777ca0345",
+    "semantic_hash": "82490889862b9ba72f02231777ca0345"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/ollama_provider.py": {
+    "mtime": 1781025197.374493,
+    "ast_hash": "6607758126c08fa49cb433e6fcaa204a",
+    "semantic_hash": "6607758126c08fa49cb433e6fcaa204a"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/audio_system/stt_engine.py": {
+    "mtime": 1781005330.4182377,
+    "ast_hash": "2db06dfb7f2a3ff4af40504ab98253a7",
+    "semantic_hash": "2db06dfb7f2a3ff4af40504ab98253a7"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/audio_system/audio_player.py": {
+    "mtime": 1781009853.0870614,
+    "ast_hash": "ab27fc5e018dc873c9aecf3712fc67a3",
+    "semantic_hash": "ab27fc5e018dc873c9aecf3712fc67a3"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/audio_system/__init__.py": {
+    "mtime": 1781005380.585189,
+    "ast_hash": "ea6a797ec3c2a7d73d92e97aa33af678",
+    "semantic_hash": "ea6a797ec3c2a7d73d92e97aa33af678"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/audio_system/tts_engine.py": {
+    "mtime": 1781023733.5496387,
+    "ast_hash": "9988474d3b3a12069671e4c2679229ab",
+    "semantic_hash": "9988474d3b3a12069671e4c2679229ab"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/assets/thinking_phrases.json": {
+    "mtime": 1780840661.221672,
+    "ast_hash": "30abd0843567e22ac11e199b115f36ea",
+    "semantic_hash": "30abd0843567e22ac11e199b115f36ea"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/vision/camera_capture.py": {
+    "mtime": 1780840927.3460672,
+    "ast_hash": "e5b67045a0bf7227a4ce1ca9d80d7177",
+    "semantic_hash": "e5b67045a0bf7227a4ce1ca9d80d7177"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/audio/microphone.py": {
+    "mtime": 1780957376.3783705,
+    "ast_hash": "feaa5df3da37c3f43d1221d71f1c3039",
+    "semantic_hash": "feaa5df3da37c3f43d1221d71f1c3039"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/audio/noise_suppressor.py": {
+    "mtime": 1780958397.9101763,
+    "ast_hash": "641b5e6b4f9940bba430c6efec25510c",
+    "semantic_hash": "641b5e6b4f9940bba430c6efec25510c"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/audio/__init__.py": {
+    "mtime": 1780957349.5335343,
+    "ast_hash": "fa7c359adeae71222d2b2a01740ac9fd",
+    "semantic_hash": "fa7c359adeae71222d2b2a01740ac9fd"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/memory/voice_memory.py": {
+    "mtime": 1780841148.8438883,
+    "ast_hash": "628b61e45913fc062af532086d2461ef",
+    "semantic_hash": "628b61e45913fc062af532086d2461ef"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/memory/reminders.json": {
+    "mtime": 1780798041.7410135,
+    "ast_hash": "8e8dc7cfcb40866e553c936f4acdc883",
+    "semantic_hash": "8e8dc7cfcb40866e553c936f4acdc883"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/memory/conversation_transcript.py": {
+    "mtime": 1780840711.5803156,
+    "ast_hash": "390688b4f0b6e4ce1cb9eca0f4a549a6",
+    "semantic_hash": "390688b4f0b6e4ce1cb9eca0f4a549a6"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/memory/memory.json": {
+    "mtime": 1781029680.9960232,
+    "ast_hash": "f7f0c03f446a1274ddb5aeb028501e98",
+    "semantic_hash": "f7f0c03f446a1274ddb5aeb028501e98"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/memory/memory.example.json": {
+    "mtime": 1780387482.0,
+    "ast_hash": "edf95dce4c4dc7d7a1a3ba2af99fe229",
+    "semantic_hash": "edf95dce4c4dc7d7a1a3ba2af99fe229"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/memory/calendar_events.json": {
+    "mtime": 1780798041.7392209,
+    "ast_hash": "cbb97e27cd8410df2b2096f758924b29",
+    "semantic_hash": "cbb97e27cd8410df2b2096f758924b29"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/memory/phone_book.example.json": {
+    "mtime": 1780387482.0,
+    "ast_hash": "8a80554c91d9fca8acb82f023de02f11",
+    "semantic_hash": "8a80554c91d9fca8acb82f023de02f11"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/memory/__init__.py": {
+    "mtime": 1780387482.0,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/memory/memory_manager.py": {
+    "mtime": 1781024119.0070727,
+    "ast_hash": "5ece63dab76830c1385295d1a66ee98d",
+    "semantic_hash": "5ece63dab76830c1385295d1a66ee98d"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/browser/browser_skill.py": {
+    "mtime": 1780800816.8797014,
+    "ast_hash": "3cb52978f6bb032cc5b12b8e70da27c0",
+    "semantic_hash": "3cb52978f6bb032cc5b12b8e70da27c0"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/browser/triggers.json": {
+    "mtime": 1780796164.162696,
+    "ast_hash": "19761f26e8fa6204b4cbd6f989cf605d",
+    "semantic_hash": "19761f26e8fa6204b4cbd6f989cf605d"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/media/media_skill.py": {
+    "mtime": 1780800002.1217575,
+    "ast_hash": "1f7c428d8003ff4c0068ea922fcc02a6",
+    "semantic_hash": "1f7c428d8003ff4c0068ea922fcc02a6"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/voice_coding/voice_coding_skill.py": {
+    "mtime": 1780841625.681176,
+    "ast_hash": "8bff1f3745fbea1b5a9103d79872a250",
+    "semantic_hash": "8bff1f3745fbea1b5a9103d79872a250"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/scheduler/scheduler_skill.py": {
+    "mtime": 1780799939.6152651,
+    "ast_hash": "991f185312a8b29bc842237d26cacedc",
+    "semantic_hash": "991f185312a8b29bc842237d26cacedc"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/debugging_jarvis/debugging_jarvis_skill.py": {
+    "mtime": 1781022436.5281622,
+    "ast_hash": "269bc7947c7e928b60f1733868e5aa70",
+    "semantic_hash": "269bc7947c7e928b60f1733868e5aa70"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/debugging_jarvis/__init__.py": {
+    "mtime": 1781020830.9244564,
+    "ast_hash": "75a1e64f9ae8da9e45d00498d4b1c544",
+    "semantic_hash": "75a1e64f9ae8da9e45d00498d4b1c544"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/file_manager/file_manager_skill.py": {
+    "mtime": 1780799862.857007,
+    "ast_hash": "5be7d65e65496a369ab3f6c71118bd3c",
+    "semantic_hash": "5be7d65e65496a369ab3f6c71118bd3c"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/services/services_skill.py": {
+    "mtime": 1780800036.0165145,
+    "ast_hash": "8f98fa5f373201ea5d0f8c1b5e060d09",
+    "semantic_hash": "8f98fa5f373201ea5d0f8c1b5e060d09"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/network/network_skill.py": {
+    "mtime": 1780799961.3700793,
+    "ast_hash": "6d04bf3f30156f4d30982d896aef1e56",
+    "semantic_hash": "6d04bf3f30156f4d30982d896aef1e56"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/weather/weather_skill.py": {
+    "mtime": 1780800016.5696514,
+    "ast_hash": "f10f1095516afc22e73867ce91890b16",
+    "semantic_hash": "f10f1095516afc22e73867ce91890b16"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/vision/vision_skill.py": {
+    "mtime": 1780799985.2268867,
+    "ast_hash": "1f6fcab07bdf35b7f3c113907309daf4",
+    "semantic_hash": "1f6fcab07bdf35b7f3c113907309daf4"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/greeting/greeting_skill.py": {
+    "mtime": 1780856206.3448586,
+    "ast_hash": "522d2a27ad870d6ae49946c2dff5a2ba",
+    "semantic_hash": "522d2a27ad870d6ae49946c2dff5a2ba"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/process_control/process_control_skill.py": {
+    "mtime": 1780799847.5071726,
+    "ast_hash": "7258c15f503a5edf698500a0e5ec196c",
+    "semantic_hash": "7258c15f503a5edf698500a0e5ec196c"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/system_health/system_health_skill.py": {
+    "mtime": 1780799831.936347,
+    "ast_hash": "374d5a0225bc9b3dba7badb90335b671",
+    "semantic_hash": "374d5a0225bc9b3dba7badb90335b671"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/youtube/youtube_skill.py": {
+    "mtime": 1780799873.3038976,
+    "ast_hash": "1f91f4155e1fdf2599a984e405718f36",
+    "semantic_hash": "1f91f4155e1fdf2599a984e405718f36"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/calendar/calendar_skill.py": {
+    "mtime": 1780799890.2017264,
+    "ast_hash": "b749488f2777efe11d8e851364ce9b2e",
+    "semantic_hash": "b749488f2777efe11d8e851364ce9b2e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/reminders/reminders_skill.py": {
+    "mtime": 1780799897.99165,
+    "ast_hash": "4d8da4d1bef36de6e2636b920ef8532d",
+    "semantic_hash": "4d8da4d1bef36de6e2636b920ef8532d"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/whatsapp/whatsapp_skill.py": {
+    "mtime": 1780800026.1825829,
+    "ast_hash": "6a1d79389769c6df7bd72a17880b9d5b",
+    "semantic_hash": "6a1d79389769c6df7bd72a17880b9d5b"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/.omo/run-continuation/ses_16235073dffe4Uwx4iukl4Nbdf.json": {
+    "mtime": 1780955763.2998023,
+    "ast_hash": "f408b5d5d5984e146adc8ddf462395a6",
+    "semantic_hash": "f408b5d5d5984e146adc8ddf462395a6"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/.omo/run-continuation/ses_153231914ffeQWr7KpdqnxUfeX.json": {
+    "mtime": 1781039080.0427077,
+    "ast_hash": "694632ec69073b63e3d6dd19e33429c9",
+    "semantic_hash": "694632ec69073b63e3d6dd19e33429c9"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/ui/text_utils.py": {
+    "mtime": 1781024525.334621,
+    "ast_hash": "95cc0c0a6bd61f3b64a9691fb3ca4d26",
+    "semantic_hash": "95cc0c0a6bd61f3b64a9691fb3ca4d26"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/ui/setup_dialog.py": {
+    "mtime": 1781024781.2723799,
+    "ast_hash": "6fb0bba55835b568a2c7f8ef7f100122",
+    "semantic_hash": "6fb0bba55835b568a2c7f8ef7f100122"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/ui/theme.py": {
+    "mtime": 1781024461.225007,
+    "ast_hash": "9965c267d4bc663c88d43029711b2046",
+    "semantic_hash": "9965c267d4bc663c88d43029711b2046"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/ui/draw_utils.py": {
+    "mtime": 1781024518.3773353,
+    "ast_hash": "c241025969654e18a486195d0792e6eb",
+    "semantic_hash": "c241025969654e18a486195d0792e6eb"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/ui/orb_canvas.py": {
+    "mtime": 1781024119.009377,
+    "ast_hash": "8ffd1cd3a89cb7405a44d22622ad151f",
+    "semantic_hash": "8ffd1cd3a89cb7405a44d22622ad151f"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/ui/__init__.py": {
+    "mtime": 1780784883.2052445,
+    "ast_hash": "26c6f7056a1bc0c2402b005b3c090adb",
+    "semantic_hash": "26c6f7056a1bc0c2402b005b3c090adb"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/ui/sound_manager.py": {
+    "mtime": 1780803184.8758006,
+    "ast_hash": "fdd80934f2453c969e2d5c0e66b062c0",
+    "semantic_hash": "fdd80934f2453c969e2d5c0e66b062c0"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/scripts/__init__.py": {
+    "mtime": 1780957379.9172673,
+    "ast_hash": "557a25bad5755ea453a2f15c32bba681",
+    "semantic_hash": "557a25bad5755ea453a2f15c32bba681"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/scripts/install_rnnoise.py": {
+    "mtime": 1780957393.1757905,
+    "ast_hash": "1b226dd6b097c2badef29e87a8f4d1d1",
+    "semantic_hash": "1b226dd6b097c2badef29e87a8f4d1d1"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/README.md": {
+    "mtime": 1780958881.8951538,
+    "ast_hash": "8af88b838f833a0be61d49822dd09364",
+    "semantic_hash": "8af88b838f833a0be61d49822dd09364"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/CLAUDE.md": {
+    "mtime": 1781022969.6860375,
+    "ast_hash": "9b36f1040cabad5d21a9cf8f09dd956c",
+    "semantic_hash": "9b36f1040cabad5d21a9cf8f09dd956c"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/requirements.txt": {
+    "mtime": 1780957489.5941384,
+    "ast_hash": "d0e56bac079e11c9f816619b7d098f30",
+    "semantic_hash": "d0e56bac079e11c9f816619b7d098f30"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/config/voices.yaml": {
+    "mtime": 1780840681.950937,
+    "ast_hash": "cb118a4d3a4f4bb73c7da8536735c60e",
+    "semantic_hash": "cb118a4d3a4f4bb73c7da8536735c60e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/config/models.yaml": {
+    "mtime": 1780840748.427786,
+    "ast_hash": "de4bc953138b114898ff5cf934ed4e21",
+    "semantic_hash": "de4bc953138b114898ff5cf934ed4e21"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/config/wake_word.yaml": {
+    "mtime": 1780840473.64626,
+    "ast_hash": "3036c982727be4e0a90655950b813564",
+    "semantic_hash": "3036c982727be4e0a90655950b813564"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/config/audio.yaml": {
+    "mtime": 1781022498.3443642,
+    "ast_hash": "70c440488bac41a782a08be7245299de",
+    "semantic_hash": "70c440488bac41a782a08be7245299de"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/core/prompt.txt": {
+    "mtime": 1780838355.9024358,
+    "ast_hash": "55c281a38a2bb86f8a85209a94655ef2",
+    "semantic_hash": "55c281a38a2bb86f8a85209a94655ef2"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/browser/SKILL.md": {
+    "mtime": 1780795986.5777533,
+    "ast_hash": "3addc6b2dd4711ab30b7aa389f87c086",
+    "semantic_hash": "3addc6b2dd4711ab30b7aa389f87c086"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/media/SKILL.md": {
+    "mtime": 1780797994.3591197,
+    "ast_hash": "d2f8f2afeb82b267bf018b503cf8987c",
+    "semantic_hash": "d2f8f2afeb82b267bf018b503cf8987c"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/voice_coding/SKILL.md": {
+    "mtime": 1780840789.2263067,
+    "ast_hash": "bb88c33f44d86d2c99a3e2aad398a324",
+    "semantic_hash": "bb88c33f44d86d2c99a3e2aad398a324"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/scheduler/SKILL.md": {
+    "mtime": 1780798501.5985472,
+    "ast_hash": "2820c95a8bfcde216e332c5f50dddcff",
+    "semantic_hash": "2820c95a8bfcde216e332c5f50dddcff"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/debugging_jarvis/SKILL.md": {
+    "mtime": 1781020905.4112568,
+    "ast_hash": "1c5a363e7fd965913c100c30c1c528af",
+    "semantic_hash": "1c5a363e7fd965913c100c30c1c528af"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/file_manager/SKILL.md": {
+    "mtime": 1780796658.5213099,
+    "ast_hash": "c4695832d3fbf7e9ac832843e963487c",
+    "semantic_hash": "c4695832d3fbf7e9ac832843e963487c"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/services/SKILL.md": {
+    "mtime": 1780798510.0045853,
+    "ast_hash": "027251dda9334dda7fd50826c8a5734f",
+    "semantic_hash": "027251dda9334dda7fd50826c8a5734f"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/network/SKILL.md": {
+    "mtime": 1780798488.7684896,
+    "ast_hash": "8b43e8ed3431bd4722d1588d64db9965",
+    "semantic_hash": "8b43e8ed3431bd4722d1588d64db9965"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/weather/SKILL.md": {
+    "mtime": 1780797308.2557166,
+    "ast_hash": "c6854f1af05044e3006a7ee0892de4a3",
+    "semantic_hash": "c6854f1af05044e3006a7ee0892de4a3"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/vision/SKILL.md": {
+    "mtime": 1780797322.5804663,
+    "ast_hash": "e9224746ea8631bce8d6252ceab2e5a4",
+    "semantic_hash": "e9224746ea8631bce8d6252ceab2e5a4"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/process_control/SKILL.md": {
+    "mtime": 1780796658.520106,
+    "ast_hash": "964eb981da928fc5eb18efb17d9d3393",
+    "semantic_hash": "964eb981da928fc5eb18efb17d9d3393"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/system_health/SKILL.md": {
+    "mtime": 1780796658.5183704,
+    "ast_hash": "dea8da0c08e1268ff6ee99023460f038",
+    "semantic_hash": "dea8da0c08e1268ff6ee99023460f038"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/youtube/SKILL.md": {
+    "mtime": 1780797315.831583,
+    "ast_hash": "995c552402dd285703fd85d0d450f40c",
+    "semantic_hash": "995c552402dd285703fd85d0d450f40c"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/calendar/SKILL.md": {
+    "mtime": 1780797967.7431123,
+    "ast_hash": "ecdc5215ffa28b197a5632b771382316",
+    "semantic_hash": "ecdc5215ffa28b197a5632b771382316"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/reminders/SKILL.md": {
+    "mtime": 1780797977.5451138,
+    "ast_hash": "97d05ccb1470f01f5db511cda2c23b4a",
+    "semantic_hash": "97d05ccb1470f01f5db511cda2c23b4a"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/skills/whatsapp/SKILL.md": {
+    "mtime": 1780797986.8031166,
+    "ast_hash": "5f40c3bcf81362ff0e71acb9ac0fdd51",
+    "semantic_hash": "5f40c3bcf81362ff0e71acb9ac0fdd51"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/docs/ARCHITECTURE.md": {
+    "mtime": 1780958749.7897537,
+    "ast_hash": "db3a5721a69fb3b431bf06e74522f80e",
+    "semantic_hash": "db3a5721a69fb3b431bf06e74522f80e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/docs/TAM_ASIMILASYON_PLANI.md": {
+    "mtime": 1781022912.6114028,
+    "ast_hash": "d58ddfecbbf64233f758c29ed9582b27",
+    "semantic_hash": "d58ddfecbbf64233f758c29ed9582b27"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/docs/TUM_HATALAR_ASIMILASYONU.md": {
+    "mtime": 1781024165.7869122,
+    "ast_hash": "029795a81d7af7a431df850d7c1e64d5",
+    "semantic_hash": "029795a81d7af7a431df850d7c1e64d5"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/docs/SKILL_YUKLEME.md": {
+    "mtime": 1780923563.613823,
+    "ast_hash": "091df671ca27e8d556a388bdd2e40852",
+    "semantic_hash": "091df671ca27e8d556a388bdd2e40852"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/docs/ROADMAP.md": {
+    "mtime": 1781024156.7926137,
+    "ast_hash": "bdf614144823a71700493a51771d8350",
+    "semantic_hash": "bdf614144823a71700493a51771d8350"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/docs/ASIMILASYON_RAPORU.md": {
+    "mtime": 1781022937.6248724,
+    "ast_hash": "b2175d3ec55347aac7898aa42b4506ed",
+    "semantic_hash": "b2175d3ec55347aac7898aa42b4506ed"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/docs/TECHNOLOGIES.md": {
+    "mtime": 1780958808.8534608,
+    "ast_hash": "03f0a81486d70625974393b6699bbe34",
+    "semantic_hash": "03f0a81486d70625974393b6699bbe34"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/helpers/bin/README.md": {
+    "mtime": 1780766161.00537,
+    "ast_hash": "fb6a0106d31c6cefddb24056055862f8",
+    "semantic_hash": "fb6a0106d31c6cefddb24056055862f8"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/graphify-out/memory/query_20260609_174249_fahrettinvad__streamingstt__streamingtts_ve_vadeng.md": {
+    "mtime": 1781026969.3214877,
+    "ast_hash": "7de06500f75a769d100b77b3c726fb91",
+    "semantic_hash": "7de06500f75a769d100b77b3c726fb91"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/Icon/youtube-logo.png": {
+    "mtime": 1780766147.4416466,
+    "ast_hash": "0f24adc5264e99a08715658d083081fd",
+    "semantic_hash": "0f24adc5264e99a08715658d083081fd"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/Icon/instagram-logo.png": {
+    "mtime": 1780766147.441454,
+    "ast_hash": "aaed3ac3b0da4f4c7cddac6542641614",
+    "semantic_hash": "aaed3ac3b0da4f4c7cddac6542641614"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test.wav": {
+    "mtime": 1780973085.0605054,
+    "ast_hash": "61230bfcfe5800096365644ee424c65a",
+    "semantic_hash": "61230bfcfe5800096365644ee424c65a"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/test_fahrettin.wav": {
+    "mtime": 1781008429.1569793,
+    "ast_hash": "79291debb947f1cecc490fef5cb75f5e",
+    "semantic_hash": "79291debb947f1cecc490fef5cb75f5e"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/SFX/Error.mp3": {
+    "mtime": 1780387512.0,
+    "ast_hash": "9e9296334e578c4ee82a8a9cde94fff6",
+    "semantic_hash": "9e9296334e578c4ee82a8a9cde94fff6"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/SFX/Start.mp3": {
+    "mtime": 1780387512.0,
+    "ast_hash": "d268c55b9b2b1959259a46d02fd4df24",
+    "semantic_hash": "d268c55b9b2b1959259a46d02fd4df24"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/SFX/HUD.mp3": {
+    "mtime": 1780387512.0,
+    "ast_hash": "dae441913bd3139b466365694b92d158",
+    "semantic_hash": "dae441913bd3139b466365694b92d158"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/SFX/Think.mp3": {
+    "mtime": 1780387512.0,
+    "ast_hash": "e81757e4c4753c30d87f92947cf5ccb0",
+    "semantic_hash": "e81757e4c4753c30d87f92947cf5ccb0"
+  },
+  "/home/adler/Downloads/jarvis-windows/jarvis/SFX/Done.mp3": {
+    "mtime": 1780387512.0,
+    "ast_hash": "5fc15a5e25784409dcb671e99be4f752",
+    "semantic_hash": "5fc15a5e25784409dcb671e99be4f752"
+  }
+}

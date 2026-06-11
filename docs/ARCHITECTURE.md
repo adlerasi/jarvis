@@ -505,3 +505,439 @@ Thread kullanan modüller ve koruma stratejileri:
 | **Maliyet** | API kullanımı ücretli | Ücretsiz |
 | **Gizlilik** | Bulut | Tamamen yerel |
 | **Model** | Gemini 2.5 Flash | qwen2.5:1.5b (değiştirilebilir) |
+
+---
+
+## 🔊 Fahrettin VAD Sistemi
+
+### Mimarisi
+
+Unified VAD wrapper: `core/fahrettin_vad.py` → `core/vad_engine.py`
+
+```
+FahrettinVAD (core/fahrettin_vad.py)
+├── __init__(config, engine, energy_threshold, sample_rate)
+│   └── VADEngine (core/vad_engine.py) — arka uç motor
+│       ├── Silero VAD (PyTorch, en doğru)     ← torch.from_numpy()
+│       ├── WebRTC VAD (webrtcvad, hızlı)      ← webrtcvad.Vad()
+│       └── Energy VAD (numpy, her zaman)       ← RMS threshold
+│
+├── is_speech(audio_bytes, sample_rate) → (bool, float)
+│   └── Auto-downsample: 48kHz → 16kHz
+│   └── Thread-safe (deque metrics)
+│
+├── get_debug_stats() → dict
+│   └── RMS, noise_floor, speech_ratio, engine_name
+│
+└── reset() → istatistikleri sıfırla
+```
+
+### Backend Zinciri
+
+| Sıra | Backend | Bağımlılık | Doğruluk | Hız |
+|------|---------|-----------|----------|-----|
+| 1 | Silero (PyTorch) | `torch` (~2GB) | ★★★★★ | Yavaş |
+| 2 | WebRTC | `webrtcvad` | ★★★★ | Çok Hızlı |
+| 3 | Energy (fallback) | `numpy` (her zaman) | ★★★ | Anlık |
+
+### Konfigürasyon (`config/audio.yaml`)
+
+```yaml
+vad:
+  fahrettin:
+    engine: "energy"          # silero / webrtc / energy
+    energy_threshold: 50.0    # RMS eşiği (eski 400+ → normal konuşma için 50)
+    debug_log: false
+```
+
+### Thread Safety
+
+- `FahrettinVAD` `is_speech()` thread-safe
+- `VADEngine` state machine kilit korumasız (tek thread çağırır)
+- Metrics `deque` append-only (lock-free safe)
+
+---
+
+## 🎤 Wake Word Sistemi
+
+### Mimarisi (`core/wake_word.py`)
+
+```
+WakeWordEngine
+├── Engine Zinciri:
+│   ├── openWakeWord (Model.tflite, önerilen)    ← Model() predict
+│   ├── Porcupine (pvporcupine, Picovoice)       ← pvporcupine.create()
+│   └── Energy (numpy, son fallback)             ← RMS threshold
+│
+├── detect(audio_frame) → bool
+│   ├── openWakeWord → threshold >= sensitivity
+│   ├── açık değilse → Porcupine → threshold
+│   ├── o da yoksa → Energy → RMS > eşik + min_duration
+│   └── hiçbiri → False
+│
+├── set_activation_callback(callback)
+├── set_deactivation_callback(callback)
+│
+└── Konfigürasyon (config/wake_word.yaml):
+    ├── engine: "openwakeword"
+    ├── wake_word: "jarvis"
+    ├── openwakeword.sensitivity: 0.5
+    ├── porcupine.sensitivity: 0.5
+    └── energy.threshold: 0.03
+```
+
+### Entegrasyon
+
+```
+main.py → Ollama modu → _listen_audio() → WakeWordEngine.detect()
+                                              │
+                                      EŞLEŞİRSE → _on_text_command() akışını başlat
+                                      EŞLEŞMEZSE → bekleme modunda kal
+```
+
+### Notlar
+
+- Wake word sadece **Ollama modunda** aktiftir
+- Gemini modunda wake word gerekmez (sürekli dinleme)
+- RNNoise gürültü bastırma wake word öncesi uygulanır (`apply_noise_suppression_before: true`)
+
+---
+
+## 🎛 Audio Sistemi (`core/audio_system/`)
+
+### Dizin Yapısı
+
+```
+core/audio_system/
+├── __init__.py        — Paket dışa aktarımı (get_stt_engine, get_tts_engine)
+├── stt_engine.py      — STT motorları (Google STT → Faster-Whisper → SpeechRecognition)
+├── tts_engine.py      — TTS motorları (Piper → pyttsx3 → edge-tts → gTTS)
+└── audio_player.py    — Ses çalma (WAV/MP3/bytes → aplay/mpg123/ffplay)
+```
+
+### STT Engine (`stt_engine.py`)
+
+```
+STTEngine
+├── __init__(engine, model_size, device)
+│   ├── engine="google" → SpeechRecognition (bulut, internet gerekli)
+│   └── engine="whisper" → faster-whisper (yerel, offline)
+│
+├── transcribe(audio_bytes) → str
+│   └── Google: Recognizer().recognize_google()
+│   └── Whisper: WhisperModel().transcribe()
+│
+├── transcribe_file(path) → str
+├── get_debug_info() → dict
+└── is_available() → bool
+```
+
+### TTS Engine (`tts_engine.py`)
+
+```
+BaseTTSEngine (abstract)
+├── PiperTTSEngine (yerel, offline, yüksek kalite)
+│   └── subprocess: echo "..." | piper --model tr_TR-fahrettin-medium.onnx --output-raw | aplay
+├── Pyttsx3Engine (cross-platform, offline)
+│   └── pyttsx3.init() → engine.say()
+├── EdgeTTSEngine (bulut, Microsoft Neural)
+│   └── subprocess: edge-tts --voice tr-TR-AhmetNeural --text "..." --write-media out.mp3
+├── GTTSEngine (bulut, Google)
+│   └── gTTS(text=..., lang="tr") → mp3
+└── FallbackChain
+    ├── Piper → pyttsx3 → Edge → gTTS
+    └── Her adımda availability kontrolü, ilk çalışan kullanılır
+```
+
+### Audio Player (`audio_player.py`)
+
+```
+AudioPlayer (singleton)
+├── play_wav(path, blocking=False) → bool
+│   └── aplay (Linux) / ffplay (cross) / PowerShell (Windows)
+├── play_bytes(audio_data, sample_rate, blocking=False) → bool
+└── stop() → tüm çalan sesleri durdur
+```
+
+---
+
+## 🔄 Yeni Modüller
+
+### Streaming STT (`core/streaming_stt.py`)
+
+```
+StreamingSTT
+├── Queue-based async transcription
+├── VAD filtering (gereksiz işlemeyi engelle)
+├── Turkish syllable fix (fix_turkish_syllable_split)
+└── RealtimeSTT (düşük gecikme modu)
+```
+
+### Streaming TTS (`core/streaming_tts.py`)
+
+```
+StreamingTTS
+├── TTSBuffer — ön belleğe alma + akış
+├── TTS akışını chunk chunk çalma
+└── Barge-In desteği (konuşmayı kesme)
+```
+
+### Barge-In (`core/barge_in.py`)
+
+```
+BargeInDetector
+├── create_barge_in_detector(config) → BargeInDetector
+├── Sırasında:
+│   ├── JARVIS konuşurken mikrofonu dinler
+│   ├── Kullanıcı konuşmaya başlarsa → TTS'i kes
+│   └── Yeni kullanıcı girdisini işlemeye başlar
+└── Entegrasyon: main.py → _listen_audio() içinde
+```
+
+### Emotion TTS (`core/emotion_tts.py`)
+
+```
+EmotionTTS
+├── SSML prosody etiketleriyle duygusal konuşma
+├── Destek: piper, edge-tts, spd-say
+└── Kullanım: EmotionTTS("mutlu", "Merhaba!") → SSML wrapped text
+```
+
+---
+
+## 🔌 Provider Abstraction Detayı
+
+### BaseProvider (`core/provider_base.py`)
+
+```
+BaseProvider (ABC)
+│
+├── Lifecycle:
+│   ├── start(jarvis)      → jarvis referansını sakla, provider'ı başlat
+│   ├── run_loop()         → ana işlem döngüsü (bloklar)
+│   └── stop()             → kaynakları temizle
+│
+├── I/O:
+│   ├── send_audio(data)   → ses gönder (ses destekli provider'lar override eder)
+│   └── send_text(text)    → metin gönder (tüm provider'lar)
+│
+├── Properties:
+│   ├── name               → "gemini" / "ollama"
+│   ├── supports_streaming_audio → ses akışı desteği
+│   └── supports_tool_calls → native tool calling desteği
+│
+└── Implementations:
+    ├── GeminiProvider (core/gemini_provider.py)
+    │   ├── Gemini Live API bidirectional streaming
+    │   ├── Tool calls: function_declarations
+    │   └── Audio: pyaudio 16kHz in → 24kHz out
+    │
+    └── OllamaProvider (core/ollama_provider.py)
+        ├── Ollama HTTP /api/chat
+        ├── Tool calls: system prompt + JSON parsing
+        ├── STT: VAD → faster-whisper → syllable fix
+        ├── TTS: Piper → Edge-TTS → spd-say
+        └── RNNoise entegrasyonu (process_16khz metodu)
+```
+
+---
+
+## 🧰 Tool Registry (`core/tool_registry.py`)
+
+### Mimarisi
+
+```
+_TOOL_DEFS → (name, description, params_dict, required_list)[]
+    │
+    ├── generate_gemini_declarations() → Gemini function_declarations formatı
+    ├── generate_ollama_tool_help() → Ollama sistem prompt'u metni
+    ├── VALID_TOOLS → whitelist seti
+    └── TOOL_HANDLER_MAP → {name: handler_method_name}
+
+Her handler: async def _handle_<name>(self, args, loop) -> str
+```
+
+### 40 Aracın Tam Listesi
+
+| # | Araç Adı | Açıklama | Parametreler |
+|---|----------|----------|-------------|
+| 1 | `open_app` | Uygulama aç | app_name |
+| 2 | `sys_info` | Sistem bilgisi | query |
+| 3 | `get_weather` | Hava durumu | location (ops) |
+| 4 | `get_current_location` | Konum bilgisi | - |
+| 5 | `get_calendar_events` | Takvim oku | query, limit (ops) |
+| 6 | `add_calendar_event` | Takvim ekle | title, start_iso, end_iso(ops), location(ops) |
+| 7 | `delete_calendar_event` | Takvim sil | title, start_iso(ops) |
+| 8 | `get_reminders` | Hatırlatıcı listele | query, limit(ops) |
+| 9 | `add_reminder` | Hatırlatıcı ekle | title, due_iso(ops) |
+| 10 | `browser_control` | Tarayıcı kontrol | action, url(ops), query(ops) |
+| 11 | `shell_run` | Komut çalıştır | command |
+| 12 | `send_whatsapp` | WhatsApp mesaj | contact, message |
+| 13 | `save_whatsapp_contact` | WhatsApp kaydet | name, phone |
+| 14 | `play_media` | Medya oynat | query, platform(ops) |
+| 15 | `get_youtube_report` | YouTube analiz | channel_handle(ops) |
+| 16 | `analyze_screen` | Ekran analizi | prompt(ops) |
+| 17 | `get_system_health` | Sistem sağlık | - |
+| 18 | `cleanup_temp_files` | Geçici dosya temizlik | days_old(ops) |
+| 19 | `cleanup_recycle_bin` | Geri dönüşüm temizlik | - |
+| 20 | `list_processes` | Süreç listele | sort_by(ops), limit(ops) |
+| 21 | `kill_process` | Süreç öldür | pid, name(ops) |
+| 22 | `set_process_priority` | Süreç öncelik | pid, priority |
+| 23 | `find_process_by_port` | Port bul | port |
+| 24 | `find_large_files` | Büyük dosya bul | folder(ops), min_gb(ops) |
+| 25 | `find_duplicate_files` | Yinelenen dosya | folder(ops) |
+| 26 | `cleanup_folder` | Klasör temizlik | folder, days_old(ops) |
+| 27 | `get_folder_summary` | Klasör özeti | folder(ops) |
+| 28 | `get_network_summary` | Ağ özeti | - |
+| 29 | `list_connections` | Bağlantı listesi | state(ops) |
+| 30 | `ping_host` | Ping testi | host |
+| 31 | `add_cron_job` | Zamanlanmış görev ekle | name, interval_m, command |
+| 32 | `list_cron_jobs` | Görev listele | - |
+| 33 | `remove_cron_job` | Görev sil | name |
+| 34 | `toggle_cron_job` | Görev aç/kapa | name |
+| 35 | `start_cron_daemon` | Cron başlat | - |
+| 36 | `list_services` | Servis listele | - |
+| 37 | `control_service` | Servis kontrol | name, action |
+| 38 | `set_volume` | Ses seviyesi | level |
+| 39 | `get_memory` | Bellek oku | key(ops) |
+| 40 | `set_memory` | Bellek yaz | key, value |
+
+---
+
+## 🧩 Skill Manager v3 — Hot-Reload
+
+### Mimarisi (`core/skill_manager.py`)
+
+```
+SkillManager (singleton, v3)
+├── 17 skill yüklü (sürekli artıyor)
+├── Hot-Reload: watcher thread (3sn interval)
+├── Otomatik keşif: skills/<name>/ klasörleri
+└── Callback desteği: loaded/reloaded/disabled
+```
+
+### Skill Keşif Protokolü
+
+```
+skills/<name>/
+├── <name>_skill.py        ← ZORUNLU: route_<name>_request(user_text)
+├── SKILL.md               ← OPSİYONEL: YAML frontmatter (SKILL_ID, SKILL_NAME, SKILL_VERSION)
+└── triggers.json          ← OPSİYONEL: trigger pattern'leri
+```
+
+### Hot-Reload Döngüsü
+
+```
+Watcher Thread (3sn)
+├── skills/ klasörünü tara
+├── Yeni dosya → import et + route_func kaydet → callback: loaded
+├── Değişen dosya → reload et → callback: reloaded
+└── Silinen dosya → kaldır → callback: disabled
+```
+
+### 17 Aktif Skill
+
+| Skill ID | Klasör | Versiyon |
+|----------|--------|----------|
+| `browser-v1` | skills/browser/ | 1.0 |
+| `system_health-v1` | skills/system_health/ | 1.0 |
+| `process_control-v1` | skills/process_control/ | 1.0 |
+| `file_manager-v1` | skills/file_manager/ | 1.0 |
+| `network-v1` | skills/network/ | 1.0 |
+| `scheduler-v1` | skills/scheduler/ | 1.0 |
+| `services-v1` | skills/services/ | 1.0 |
+| `weather-v1` | skills/weather/ | 1.0 |
+| `youtube-v1` | skills/youtube/ | 1.0 |
+| `vision-v1` | skills/vision/ | 1.0 |
+| `calendar-v1` | skills/calendar/ | 1.0 |
+| `reminders-v1` | skills/reminders/ | 1.0 |
+| `whatsapp-v1` | skills/whatsapp/ | 1.0 |
+| `media-v1` | skills/media/ | 1.0 |
+| `demo-v1` | skills/demo/ | 0.1 |
+| `greeting-v1` | skills/greeting/ | 1.0 |
+| `debugging_jarvis-v1` | skills/debugging_jarvis/ | 1.0 |
+
+---
+
+## 🛡 Hata Yönetimi Pattern'leri
+
+### Exception Logging
+
+```python
+# DOGRU: Her except pass traceback ile loglanır
+try:
+    sonuc = riskli_islem()
+except Exception:
+    traceback.print_exc()  # ZORUNLU
+
+# ISTISNA 1: NDJSON stream parser (main.py Ollama chunk)
+#   → Kısmi/eksik JSON beklenir, her chunk loglamak flood yaratır
+
+# ISTISNA 2: Best-effort fallback (windows_utils, process_manager, youtube_stats)
+#   → Dış çağrıcı zaten logluyor
+
+# ISTISNA 3: cleanup finally bloğu
+#   → close()/terminate()/kill() de traceback.print_exc() ile loglanır
+```
+
+### Stream Parsing
+
+```python
+# NDJSON/stream parser'larda:
+#   → Önemsiz kısmi chunk'larda traceback atlanır
+#   → Gerçek hatalarda traceback.print_exc() ZORUNLU
+```
+
+### Input Validation
+
+| Kural | Limit | Nerede |
+|-------|-------|--------|
+| STT text cap | 10000 char | `_on_text_command()` |
+| Tool call arg cap | 500 char/arg | `parse_local_tool_call()` |
+| Tool call total cap | 2000 char | `parse_local_tool_call()` |
+| Tool name whitelist | Sadece kayıtlı | `VALID_TOOLS` seti |
+
+### Cleanup Exception Logging
+
+```python
+finally:
+    try:
+        stream.close()
+    except Exception:
+        traceback.print_exc()  # Kaynak sızıntısını gizleme
+```
+
+---
+
+## 📊 Kod İstatistikleri (Güncel)
+
+| Ölçüt | Değer |
+|-------|-------|
+| Python satırı | ~11,000+ |
+| Python dosyası | 45+ |
+| Action modülü | 25 (20 ana + 5 opsiyonel) |
+| Core modülü | 15+ |
+| Audio modülü | 5 (noise_suppressor, microphone, lib, audio_system/) |
+| Skill modülü | 17 |
+| UI satırı | ~2,300 (ui.py + ui/ paketi) |
+| Test sayısı | 1261 (unittest, 2 skip) |
+| Dokümantasyon | 19 .md dosyası (docs/) |
+
+---
+
+## 📚 Dokümantasyon Haritası
+
+| Dosya | Açıklama |
+|-------|----------|
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Sistem Mimarisi — Bu dosya |
+| [ORCHESTRATOR.md](ORCHESTRATOR.md) | Orkestrasyon katmanı — JarvisLive, tool dispatch, routing |
+| [AGENTS.md](AGENTS.md) | Ajan sistemi — ACA, Skill Manager, yaşam döngüsü |
+| [SKILLS.md](SKILLS.md) | Skill sistemi — yükleme, hot-reload, 18 skill listesi |
+| [UI_LAYER.md](UI_LAYER.md) | Arayüz katmanı — Tkinter, OrbCanvas, SoundManager |
+| [STT_TTS.md](STT_TTS.md) | Ses işleme — STT, TTS, VAD, Wake Word |
+| [LLM_INTEGRATION.md](LLM_INTEGRATION.md) | LLM entegrasyonu — Gemini, Ollama, tool calling |
+| [BROWSER_SKILL.md](BROWSER_SKILL.md) | Tarayıcı yönetimi — browser skill/action, güvenlik |
+| [STATE_MANAGEMENT.md](STATE_MANAGEMENT.md) | Durum yönetimi — state machine, persistence, concurrency |
+| [CONFIG.md](CONFIG.md) | Yapılandırma — API anahtarları, audio.yaml, validasyon |
+| [API_REFERENCE.md](API_REFERENCE.md) | Dahili API referansı — modül arayüzleri, şemalar, hatalar |
+| [DEPENDENCIES.md](DEPENDENCIES.md) | Bağımlılık haritası — Python paketleri, sistem araçları |

@@ -193,6 +193,7 @@
 | **Input validation** — STT text ≤10000, tool args ≤500 char, tool call ≤2000 char, tool adı whitelist | Enjeksiyon/memory koruması | `main.py:1056,2212,2231,2249` | ✅ |
 | **Backup dir `__init__.py`** — import gölgeleme riski | Potansiyel modül karışıklığı | `backup_20260607_012108/` | ✅ |
 | **LSP type fixes** — `str\|None`, `Pattern[str]`, `Callable[..., Any]`, pyrightconfig | Derleme/sağlık | 6 dosya | ✅ |
+| **Tüm hata asimilasyonu** — 6 LSP hatası, 3 test fix, TTS modülü yeniden yapılandırma, VAD double downsampling, Windows import koruması, `# type: ignore` temizliği, debug print'leri gating, `from __future__ import annotations` bulk | Derleme/Test/Kalite | ~90dk | ✅ |
 
 ---
 
@@ -212,7 +213,7 @@
 
 | Görev | Açıklama | Öncelik |
 |-------|----------|---------|
-| **Birim testleri** — Her action modülü için unittest | Mevcut sadece smoke test var | Yüksek |
+| **Birim testleri** — Her action modülü için unittest ✅ | Mevcut sadece smoke test vardı, şimdi 80+ modül test dosyası | Yüksek |
 | **API anahtarı rotasyonu** — Geçersiz anahtar tespiti + uyarı | Daha iyi hata yönetimi | Orta |
 | **Ses akışı watchdog** — Kesinti tespiti + otomatik yeniden bağlanma | Kararlılık | Orta |
 | **Hata raporlama** — Kullanıcı dostu hata mesajları (Türkçe) | UX | Orta |
@@ -267,7 +268,7 @@ Yapılandırma          ██████████ 100%
 Güvenlik              ██████████ 100%
 Test                  ██████████ 100%
 Dokümantasyon         ██████████ 100%
-Hata Yönetimi         ████████░░  80%
+Hata Yönetimi         ██████████ 100%
 Performans            ████░░░░░░  40%
 ```
 
@@ -299,4 +300,4 @@ Performans            ████░░░░░░  40%
 
 ---
 
-*Son güncelleme: 2026-06-09 (v5 — RNNoise gürültü bastırma eklendi)*
+*Son güncelleme: 2026-06-11 (v7 — Tüm dokümantasyon asimilasyonu: test/skill/tool sayıları güncellendi)*

@@ -1,6 +1,8 @@
 """
 Sistem bilgisi - Windows uyumlu psutil + standart kutuphaneler.
 """
+from __future__ import annotations
+
 
 import datetime
 import os

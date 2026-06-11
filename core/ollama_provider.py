@@ -5,6 +5,10 @@
 
 from __future__ import annotations
 
+import os as _os
+
+_DEBUG = _os.environ.get("JARVIS_DEBUG_STT", "").lower() in ("1", "true", "yes")
+
 import asyncio
 import datetime
 import json
@@ -20,21 +24,14 @@ import scipy.signal
 from core.provider_base import BaseProvider
 from core.tool_registry import VALID_TOOLS, generate_ollama_tool_help
 
-# VAD (unified FahrettinVAD wrapper)
-try:
-    from core.fahrettin_vad import FahrettinVAD
-    _HAS_FAHRETTIN_VAD = True
-except ImportError:
-    _HAS_FAHRETTIN_VAD = False
-    FahrettinVAD = None  # type: ignore
+
 
 # RNNoise gürültü bastırma (opsiyonel — kütüphane yoksa bypass)
 try:
-    from audio.noise_suppressor import NoiseSuppressor
+    import audio.noise_suppressor as _noise_module
     _HAS_RNNOISE = True
 except ImportError:
     _HAS_RNNOISE = False
-    NoiseSuppressor = None  # type: ignore
 
 
 # ── Constants (matches main.py) ──────────────────────────────
@@ -131,6 +128,8 @@ class OllamaProvider(BaseProvider):
     def name(self) -> str:
         return "ollama"
 
+    MAX_STT_RESTARTS = 5
+
     def __init__(self):
         super().__init__()
         self.input_queue: asyncio.Queue = asyncio.Queue()
@@ -138,6 +137,16 @@ class OllamaProvider(BaseProvider):
         self._history: list[dict[str, str]] = []
         self._ollama_warned_quality = False
         self._running = False
+        self._cached_config: dict = {}
+        self._config_last_refresh: float = 0.0
+        self._stt_restart_count: int = 0
+
+    def _get_config(self) -> dict:
+        now = time.monotonic()
+        if now - self._config_last_refresh > 1.0:
+            self._cached_config = _load_app_config()
+            self._config_last_refresh = now
+        return self._cached_config
 
     async def start(self, jarvis: Any) -> None:
         await super().start(jarvis)
@@ -166,19 +175,26 @@ class OllamaProvider(BaseProvider):
         j = self._j()
         import httpx
 
-        # ── Start STT listener ──
+        # ── Start STT listener (with restart limit) ──
         if self._stt_task is None or self._stt_task.done():
+            if self._stt_restart_count >= self.MAX_STT_RESTARTS:
+                print(f"[Ollama] STT {self.MAX_STT_RESTARTS} kez yeniden baslatildi, durduruluyor.")
+                j.ui.safe_call(j.ui.write_log, "ERR: Ses tanima surekli hata veriyor, durduruldu.")
+                j.set_state("ERROR")
+                self._running = False
+                return
+            self._stt_restart_count += 1
             self._stt_task = asyncio.create_task(self._stt_listen_loop())
 
         if not self._history:
             self._history = []
 
         # ── Model Warm-up ──
-        cfg = _load_app_config()
+        cfg = self._get_config()
         warmup_model = cfg.get("ollama_model", "")
         if warmup_model:
-            j.ui.write_log(f"SYS: Model yükleniyor ({warmup_model})...")
-            j.ui.set_state("THINKING")
+            j.ui.safe_call(j.ui.write_log, f"SYS: Model yükleniyor ({warmup_model})...")
+            j.set_state("THINKING")
             try:
                 async with httpx.AsyncClient(timeout=120.0) as client:
                     await client.post(
@@ -197,11 +213,12 @@ class OllamaProvider(BaseProvider):
             except Exception:
                 pass
 
-        if getattr(j.ui, "_jarvis_state", "") not in ("THINKING", "SPEAKING"): j.ui.set_state("LISTENING")
-        j.ui.write_log("SYS: JARVIS yerel modda hazır. Dinliyorum...")
+        if getattr(j.ui, "_jarvis_state", "") not in ("THINKING", "SPEAKING"):
+            j.set_state("LISTENING")
+        j.ui.safe_call(j.ui.write_log, "SYS: JARVIS yerel modda hazır. Dinliyorum...")
 
         while self._running:
-            cfg = _load_app_config()
+            cfg = self._get_config()
             if cfg.get("backend_type", "gemini") != "ollama":
                 break
 
@@ -222,7 +239,7 @@ class OllamaProvider(BaseProvider):
                 except Exception:
                     pass
 
-            j.ui.set_state("THINKING")
+            j.set_state("THINKING")
 
             # Thinking aloud
             ta = getattr(j, "thinking_aloud", None)
@@ -264,8 +281,8 @@ class OllamaProvider(BaseProvider):
 
             ollama_model = cfg.get("ollama_model", "")
             if not ollama_model:
-                j.ui.write_log("ERR: Ollama modeli secilmemis.")
-                j.ui.set_state("ERROR")
+                j.ui.safe_call(j.ui.write_log, "ERR: Ollama modeli secilmemis.")
+                j.set_state("ERROR")
                 continue
 
             print(f"[Ollama] Model: {ollama_model}")
@@ -279,8 +296,8 @@ class OllamaProvider(BaseProvider):
             except Exception as e:
                 err_detail = f"{type(e).__name__}: {e}"
                 print(f"[Ollama] Hata: {err_detail}")
-                j.ui.write_log(f"ERR: Ollama yanit veremiyor — {err_detail[:120]}")
-                j.ui.set_state("ERROR")
+                j.ui.safe_call(j.ui.write_log, f"ERR: Ollama yanit veremiyor — {err_detail[:120]}")
+                j.set_state("ERROR")
                 continue
 
             print(f"[Ollama] Yanit uzunlugu: {len(response_text)} chars")
@@ -292,8 +309,9 @@ class OllamaProvider(BaseProvider):
             ).strip()
 
             if not response_text:
-                j.ui.write_log("WARN: Model bos yanit verdi, tekrar bekliyorum.")
-                if getattr(j.ui, "_jarvis_state", "") not in ("THINKING", "SPEAKING"): j.ui.set_state("LISTENING")
+                j.ui.safe_call(j.ui.write_log, "WARN: Model bos yanit verdi, tekrar bekliyorum.")
+                if getattr(j.ui, "_jarvis_state", "") not in ("THINKING", "SPEAKING"):
+                    j.set_state("LISTENING")
                 continue
 
             # ── Check for tool calls ──
@@ -301,7 +319,7 @@ class OllamaProvider(BaseProvider):
             if tool_call:
                 tool_name, tool_args = tool_call
                 print(f"[Ollama Tool Call] detected: {tool_name} with {tool_args}")
-                j.ui.write_log(f"SYS: Araç çalıştırılıyor — {tool_name}")
+                j.ui.safe_call(j.ui.write_log, f"SYS: Araç çalıştırılıyor — {tool_name}")
 
                 # LocalFunctionCall adapter → _execute_tool
                 class LocalFunctionCall:
@@ -331,7 +349,7 @@ class OllamaProvider(BaseProvider):
 
                 response_text = ""
                 try:
-                    j.ui.set_state("THINKING")
+                    j.set_state("THINKING")
                     response_text = await self._ollama_chat(
                         ollama_model, messages, j
                     )
@@ -343,19 +361,17 @@ class OllamaProvider(BaseProvider):
                 except Exception as e:
                     err_detail = f"{type(e).__name__}: {e}"
                     print(f"[Ollama Tool Follow-up] Hata: {err_detail}")
-                    j.ui.write_log(
-                        f"ERR: Ollama arac sonrasi yanit veremiyor — {err_detail[:120]}"
-                    )
-                    j.ui.set_state("ERROR")
+                    j.ui.safe_call(j.ui.write_log, f"ERR: Ollama arac sonrasi yanit veremiyor — {err_detail[:120]}")
+                    j.set_state("ERROR")
                     continue
 
-                j.ui.write_log(f"JARVIS: {response_text}")
+                j.ui.safe_call(j.ui.write_log, f"JARVIS: {response_text}")
                 await j._speak_response(response_text)
 
             else:
                 self._history.append({"role": "user", "content": text})
                 self._history.append({"role": "assistant", "content": response_text})
-                j.ui.write_log(f"JARVIS: {response_text}")
+                j.ui.safe_call(j.ui.write_log, f"JARVIS: {response_text}")
                 await j._speak_response(response_text)
 
     # ── Ollama HTTP Chat ─────────────────────────────────────
@@ -404,19 +420,12 @@ class OllamaProvider(BaseProvider):
                                 ):
                                     if not self._ollama_warned_quality:
                                         self._ollama_warned_quality = True
-                                        j.ui.write_log(
-                                            "WARN: Mevcut Ollama modeli bazi isteklerde "
-                                            "yetersiz kaliyor. Ayarlardan daha buyuk "
-                                            "bir model secin (7B+)."
-                                        )
+                                        j.ui.safe_call(j.ui.write_log, "WARN: Mevcut Ollama modeli bazi isteklerde yetersiz kaliyor. Ayarlardan daha buyuk bir model secin (7B+).")
                             done = data.get("done", False)
                             if done:
                                 done_reason = data.get("done_reason", "")
                                 if done_reason and done_reason not in ("stop", ""):
-                                    j.ui.write_debug(
-                                        f"Ollama done_reason: {done_reason}",
-                                        level="WARN",
-                                    )
+                                    j.ui.safe_call(j.ui.write_debug, f"Ollama done_reason: {done_reason}", level="WARN")
                         except Exception:
                             pass
         return response_text
@@ -427,13 +436,14 @@ class OllamaProvider(BaseProvider):
         """Main STT loop: PyAudio → STTEngine → input_queue."""
         j = self._j()
         import pyaudio
+        import numpy as np
+        import traceback
         from core.audio_system.stt_engine import get_stt_engine
         
         stt_engine = get_stt_engine()
-        if not stt_engine.list_engines():
+        if not stt_engine.is_available():
             print("[Ollama STT] UYARI: STT motoru hazir degil!")
             
-        print("[Ollama STT] PyAudio baslatiliyor...")
         p = pyaudio.PyAudio()
         stream = None
         target_rate = 16000
@@ -458,56 +468,31 @@ class OllamaProvider(BaseProvider):
             j.ui.write_log("ERR: Mikrofon baslatilamadi. Sesli komut calismayacak.")
             return
 
-        # ── FahrettinVAD (unified VAD wrapper) ──
-        self._fahrettin_vad: FahrettinVAD | None = None
-        if _HAS_FAHRETTIN_VAD:
-            try:
-                from app_config import load_app_config
-                cfg = load_app_config()
-                audio_cfg = cfg.get("audio", {})
-                self._fahrettin_vad = FahrettinVAD(
-                    config=audio_cfg,
-                    engine="energy",
-                    energy_threshold=50.0,
-                    debug_log=False,
-                )
-                print("[Ollama STT] FahrettinVAD etkin")
-            except Exception:
-                traceback.print_exc()
-                print("[Ollama STT] FahrettinVAD baslatilamadi, energy VAD kullanilacak")
-
+        # ── Noise profile ──
+        _noise_floor = None
+        _noise_frames = []
         FRAME_SIZE = 2048
         
         print("[Ollama STT] Dinleme başladı...")
         _speech_buf = bytearray()
-        _pre_roll = []
         _silence_start = None
         _is_awake = False
         
         try:
-            print(f"[Ollama STT DEBUG] Before while. running={self._running}", flush=True)
             while self._running:
                 cfg = _load_app_config()
-                is_paused = getattr(j, "_paused", False)
-                backend = cfg.get("backend_type", "gemini")
-                
-                print(f"[Ollama STT DEBUG] loop tick. paused={is_paused}, backend={backend}", flush=True)
-                
-                if is_paused or backend != "ollama":
+                if j._paused or cfg.get("backend_type", "gemini") != "ollama":
                     await asyncio.sleep(0.1)
                     continue
 
                 barge = getattr(j, "barge_in", None)
                 try:
                     # Non-blocking read attempts to avoid deadlocks
-                    # DO NOT use run_in_executor here, PortAudio ALSA backend hangs when read from a ThreadPool worker!
-                    print("[Ollama STT DEBUG] Before stream.read", flush=True)
                     data = stream.read(FRAME_SIZE, exception_on_overflow=False)
-                    print("[Ollama STT DEBUG] After stream.read", flush=True)
-                    await asyncio.sleep(0.001)  # yield control to asyncio loop
                     
                     # ── Downsample if needed ──
                     if device_rate != target_rate:
+                        import scipy.signal
                         pcm = np.frombuffer(data, dtype=np.int16).astype(np.float32)
                         samples = int(len(pcm) * target_rate / device_rate)
                         resampled = scipy.signal.resample(pcm, samples)
@@ -520,17 +505,10 @@ class OllamaProvider(BaseProvider):
                     buf = getattr(j, "audio_buffer", None)
                     if buf is not None:
                         buf.write(data)
+                    sstt = getattr(j, "streaming_stt_engine", None)
+                    if sstt is not None:
+                        sstt.feed_audio(data)
                         
-                    with j._speaking_lock:
-                        # Watchdog: If speaking state is stuck for more than 15 seconds, force unlock
-                        if j._is_speaking and getattr(j, "_last_speech_start", 0) > 0:
-                            if time.monotonic() - j._last_speech_start > 15.0:
-                                j._is_speaking = False
-                                j._last_speech_end = time.monotonic()
-                                print("[Ollama STT] Watchdog triggered: Forcing _is_speaking to False", flush=True)
-                                if barge is not None:
-                                    barge.set_jarvis_speaking(False)
-
                     if barge is not None and barge.is_jarvis_speaking():
                         barge.process_user_audio(data)
                         continue
@@ -540,52 +518,49 @@ class OllamaProvider(BaseProvider):
                         sc = time.monotonic() - j._last_speech_end < j._speaking_cooldown
                         
                     if js or sc or j.ui.muted:
-                        print(f"[Ollama STT DEBUG] Skipping RMS. js={js}, sc={sc}, muted={j.ui.muted}", flush=True)
                         continue
                         
-                    # Wake word — gate STT until triggered
+                    # Wake word
                     if ww is not None:
                         if j._wake_word_triggered:
                             _is_awake = True
                             j._wake_word_triggered = False
-                        
                         if not _is_awake:
                             continue
                             
-                    if getattr(j.ui, "_jarvis_state", "") not in ("THINKING", "SPEAKING"): j.ui.set_state("LISTENING")
+                    j.ui.set_state("LISTENING")
                     
-                    # VAD — unified FahrettinVAD wrapper
-                    if self._fahrettin_vad is not None:
-                        is_speech, _ = self._fahrettin_vad.is_speech(data, target_rate)
+                    # VAD (Energy-based fallback)
+                    arr = np.frombuffer(data, dtype=np.int16).astype(np.float32)
+                    rms = float(np.sqrt(np.mean(arr ** 2)))
+                    
+                    if _noise_floor is None:
+                        _noise_frames.append(rms)
+                        if len(_noise_frames) >= 10:
+                            _noise_frames.sort()
+                            _noise_floor = _noise_frames[len(_noise_frames) // 4]
+                            if _noise_floor < 1.0: _noise_floor = 50.0
+                            print(f"[Ollama STT] Noise floor: {_noise_floor:.1f}")
+                        is_speech = False
                     else:
-                        # Fallback: simple energy threshold (no noise adaptation)
-                        arr = np.frombuffer(data, dtype=np.int16).astype(np.float32)
-                        rms = float(np.sqrt(np.mean(arr ** 2)))
-                        is_speech = rms > 400.0
+                        _noise_floor = _noise_floor * 0.99 + rms * 0.01
+                        threshold = _noise_floor + 400.0 if _noise_floor else 2500.0
+                        is_speech = rms > threshold
                         
                     if is_speech:
-                        if not _speech_buf:
-                            # Prepend the last few frames to catch unvoiced starts of words
-                            for f in _pre_roll:
-                                _speech_buf.extend(f)
                         _speech_buf.extend(data)
                         _silence_start = None
                     else:
-                        _pre_roll.append(data)
-                        if len(_pre_roll) > 5:
-                            _pre_roll.pop(0)
-                            
                         if _speech_buf:
-                            _speech_buf.extend(data)
                             if _silence_start is None:
                                 _silence_start = time.time()
-                            elif (time.time() - _silence_start) * 1000 > 700: # 700ms silence
+                            elif (time.time() - _silence_start) * 1000 > 500: # 500ms silence
                                 audio_bytes = bytes(_speech_buf)
                                 _speech_buf = bytearray()
                                 _silence_start = None
                                 _is_awake = False
                                 
-                                if len(audio_bytes) < 8000: # at least 0.5 sec
+                                if len(audio_bytes) < 3200:
                                     continue
                                     
                                 j.ui.set_state("THINKING")
@@ -605,7 +580,7 @@ class OllamaProvider(BaseProvider):
                                     print(f"[Ollama STT] {text}")
                                     await self.input_queue.put(text)
                                 else:
-                                    if getattr(j.ui, "_jarvis_state", "") not in ("THINKING", "SPEAKING"): j.ui.set_state("LISTENING")
+                                    j.ui.set_state("LISTENING")
                                     
                 except OSError as e:
                     await asyncio.sleep(0.01)

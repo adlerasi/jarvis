@@ -15,6 +15,8 @@ Veri akisi (Windows):
   → memory/health/HealthAutoExport-YYYY-MM-DD.json
   → JARVIS
 """
+from __future__ import annotations
+
 
 import json
 import os

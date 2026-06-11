@@ -2,6 +2,8 @@
 Uygulama acma — Windows Start-Process / URI destegi ile calisir.
 Alp Unlu tarafindan yapilmistir — @alppunlu
 """
+from __future__ import annotations
+
 
 import os
 

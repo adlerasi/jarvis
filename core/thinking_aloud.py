@@ -124,7 +124,7 @@ class ThinkingAloud:
             else:
                 # Default: use existing TTS
                 from actions.tts import speak_text
-                speak_text(phrase, ollama_voice=self.voice)
+                speak_text(phrase, voice=self.voice)
         except Exception:
             traceback.print_exc()
 

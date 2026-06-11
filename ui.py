@@ -3,6 +3,8 @@ JARVIS Windows — UI v3
 Concentric teal rings · Segmented arcs
 Adler ASİ tarafından yapılmıştır
 """
+from __future__ import annotations
+
 
 import os, time, math, random, signal, threading, queue, traceback
 import tkinter as tk
@@ -14,6 +16,19 @@ from PIL import Image, ImageTk
 from app_config import has_gemini_api_key, load_app_config, save_app_config, get_ollama_models, get_ollama_tts_voices
 from actions.weather import get_weather_summary
 from actions.windows_utils import open_url
+
+from ui.theme import (
+    C_BG, C_PRI, C_ORG, C_ORG2, C_MID, C_DIM, C_DIMMER, C_TEXT, C_PANEL,
+    C_GREEN, C_RED, C_MUTED, C_BLUE, C_GOLD,
+    ORB_COLORS, STATE_HEX_COLORS,
+    W_TARGET, H_TARGET, LEFT_W_T, RIGHT_W_T, HDR_H, FOOTER_H, INPUT_H, CONTROL_H,
+    VOICES,
+    FONT_BODY_FAMILY, FONT_DISPLAY_FAMILY,
+    font_body, font_body_bold, font_display,
+)
+from ui.draw_utils import _ac, _bar, _sparkline, _bracket, _draw_info_card as _draw_info_card_impl, _orb_rgb as _orb_rgb_impl
+from ui.text_utils import _split_summary_lines, _parse_weather_card as _parse_weather_card_impl, _parse_health_card as _parse_health_card_impl
+from ui.setup_dialog import SetupDialog
 
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -32,72 +47,6 @@ IS_WINDOWS = (os.name == 'nt')
 SYSTEM_NAME = "J.A.R.V.I.S"
 MODEL_BADGE = "VOICE CORE · Windows"
 
-# ── Renk paleti ──────────────────────────────────────────────────────────────
-C_BG      = "#020c0c"
-C_PRI     = "#00d4c0"
-C_ORG     = "#ff6600"
-C_ORG2    = "#ff9900"
-C_MID     = "#006a62"
-C_DIM     = "#0a2a28"
-C_DIMMER  = "#061414"
-C_TEXT    = "#7dfff6"
-C_PANEL   = "#030f0f"
-C_GREEN   = "#00ff88"
-C_RED     = "#ff3344"
-C_MUTED   = "#cc2255"
-C_BLUE    = "#4488ff"
-C_GOLD    = "#ffcc00"
-
-# Orb durum renkleri
-ORB_COLORS = {
-    "LISTENING":    (0, 255, 136),
-    "SPEAKING":     (68, 136, 255),
-    "THINKING":     (255, 204, 0),
-    "MUTED":        (200, 30, 80),
-    "PAUSED":       (30, 60, 55),
-    "ERROR":        (255, 51, 68),
-    "INITIALISING": (255, 51, 68),
-}
-
-# ── Boyutlar ─────────────────────────────────────────────────────────────────
-W_TARGET = 2200
-H_TARGET = 1320
-LEFT_W_T = 360
-RIGHT_W_T = 410
-HDR_H    = 72
-FOOTER_H = 26
-INPUT_H  = 34
-CONTROL_H = 146
-
-VOICES = ["Charon", "Puck", "Aoede", "Kore", "Fenrir", "Leda", "Orus", "Zephyr"]
-
-# ── Font sistemi ─────────────────────────────────────────────────────────────
-# Grift fontu kullanıcının sisteminde yüklü. Basliklarda daha sert bir vurgu
-# icin ayri extra bold aile adini kullaniyoruz.
-FONT_BODY_FAMILY = "Grift"
-FONT_DISPLAY_FAMILY = "Grift Extra Bold"
-
-
-def font_body(size: int):
-    return (FONT_BODY_FAMILY, size)
-
-
-def font_body_bold(size: int):
-    return (FONT_BODY_FAMILY, size, "bold")
-
-
-def font_display(size: int):
-    return (FONT_DISPLAY_FAMILY, size)
-
-
-STATE_HEX_COLORS = {
-    "LISTENING": C_GREEN,
-    "SPEAKING": C_BLUE,
-    "THINKING": C_GOLD,
-    "INITIALISING": C_RED,
-    "ERROR": C_RED,
-}
-
 
 # ── SoundManager ─────────────────────────────────────────────────────────────
 from ui.sound_manager import SoundManager
@@ -107,6 +56,18 @@ from ui.orb_canvas import OrbCanvas
 
 class JarvisUI:
     def __init__(self):
+        # ── Hardware check: display required for UI ──
+        try:
+            from core.hardware_detector import HardwareDetector
+            dpy = HardwareDetector.check_display()
+            if dpy.status != "ok":
+                raise RuntimeError(
+                    f"Cannot start UI — {dpy.label}: {dpy.detail}\n"
+                    "Run in headless/CLI mode instead."
+                )
+        except ImportError:
+            pass  # during early module bootstrap, proceed with best-effort
+
         self.root = tk.Tk()
         self.root.title("J.A.R.V.I.S")
         self.root.update_idletasks()
@@ -115,8 +76,11 @@ class JarvisUI:
         sh = self.root.winfo_screenheight()
         margin_x = max(24, int(sw * 0.025))
         margin_y = max(54, int(sh * 0.055))
-        self.W = min(max(640, sw - margin_x), sw, W_TARGET)
-        self.H = min(max(520, sh - margin_y), sh, H_TARGET)
+        # Adaptive sizing: cap at 92% of screen or absolute max for ultra-large
+        max_w = min(int(sw * 0.92), max(W_TARGET, sw))
+        max_h = min(int(sh * 0.92), max(H_TARGET, sh))
+        self.W = min(max(640, sw - margin_x), sw, max_w)
+        self.H = min(max(520, sh - margin_y), sh, max_h)
         _geo = f"{self.W}x{self.H}+{(sw-self.W)//2}+{max(0, (sh-self.H)//2 - 8)}"
         self.root.geometry(_geo)
         self.root.minsize(min(self.W, sw), min(self.H, sh))
@@ -154,6 +118,18 @@ class JarvisUI:
         self._jarvis_state   = "INITIALISING"
         self._user_speaking_until = 0.0
 
+        # ── ACA Agent state ──────────────────────────────────────────────────
+        self.agent_goal_text: str = ""
+        self.agent_steps: list[dict] = []
+        self.agent_active_step: int = 0
+        self.agent_log: list[str] = []
+        self.agent_approval_request: dict | None = None
+        self.agent_confidence: float = 0.0
+        self.agent_enabled: bool = True
+        self.agent_approval_mode: bool = False
+        self.agent_max_steps: int = 20
+        self.agent_max_duration: int = 300
+
         # ── Health overlay ───────────────────────────────────────────────────
         self._health_visible  = False
         self._health_query    = "all"
@@ -170,6 +146,7 @@ class JarvisUI:
         self._panel_focus = ""
         self._panel_focus_until = 0.0
         self._brief_refresh_busy = False
+        self._mic_level = 0.0
         self._started_at = time.time()
         self._error_hold_until = 0.0
         self._settings_open = False
@@ -186,10 +163,7 @@ class JarvisUI:
             "panel_w": 320,
             "panel_h": 292,
         }
-        self.setup_frame = None
-        self.api_entry = None
-        self.youtube_api_entry = None
-        self.youtube_handle_entry = None
+        self._setup_dialog = SetupDialog(self)
 
         # ── Callbacks ────────────────────────────────────────────────────────
         self.on_text_command = None
@@ -197,6 +171,17 @@ class JarvisUI:
         self.on_stop_command = None
         self.on_voice_change = None
         self.on_effects_state_change = None
+        self.on_agent_approval = None
+        self.on_approval_mode_toggle = None
+        self.on_config_change = None
+
+        self.root.bind("<F6>", lambda e: self._on_agent_approve())
+        self.root.bind("<F7>", lambda e: self._on_agent_deny())
+        self.root.bind("<F8>", lambda e: self._on_approval_toggle())
+        self.root.bind("<F9>", lambda e: self._on_config_change("max_steps", 5))
+        self.root.bind("<F10>", lambda e: self._on_config_change("max_steps", -5))
+        self.root.bind("<Shift-F9>", lambda e: self._on_config_change("max_duration", 30))
+        self.root.bind("<Shift-F10>", lambda e: self._on_config_change("max_duration", -30))
 
         # ── Voice ────────────────────────────────────────────────────────────
         self._current_voice = self._load_voice()
@@ -305,7 +290,7 @@ class JarvisUI:
         cfg = load_app_config()
         self._api_key_ready = (cfg.get("backend_type", "gemini") == "ollama") or has_gemini_api_key()
         if not self._api_key_ready:
-            self._show_setup_ui()
+            self._setup_dialog.show()
 
         self._effects_active = None
         self._sync_sound_state()
@@ -330,7 +315,15 @@ class JarvisUI:
         self.root.update_idletasks()
 
     def safe_call(self, func, *args, **kwargs):
+        """Thread-safe UI call. Main thread'de direkt çalışır, bg thread'de queue'ya ekler."""
+        if threading.current_thread() is threading.main_thread():
+            try:
+                return func(*args, **kwargs)
+            except Exception:
+                traceback.print_exc()
+                return None
         self._gui_queue.put((func, args, kwargs))
+        return None
 
     def _process_gui_queue(self):
         while not self._gui_queue.empty():
@@ -669,7 +662,7 @@ class JarvisUI:
         self._api_canvas = tk.Canvas(
             parent, width=bw, height=bh,
             bg=parent.cget("bg"), highlightthickness=0, cursor="hand2")
-        self._api_canvas.bind("<Button-1>", lambda e: self._open_api_settings())
+        self._api_canvas.bind("<Button-1>", lambda e: self._setup_dialog.show(edit_mode=self._api_key_ready))
         self._draw_api_button()
 
     def _draw_api_button(self):
@@ -737,17 +730,6 @@ class JarvisUI:
                     self.on_effects_state_change(enabled)
                 except Exception:
                     traceback.print_exc()
-
-    def _open_api_settings(self):
-        self._show_setup_ui(edit_mode=self._api_key_ready)
-
-    def _close_setup_ui(self):
-        if self.setup_frame and self.setup_frame.winfo_exists():
-            self.setup_frame.destroy()
-        self.setup_frame = None
-        self.api_entry = None
-        self.youtube_api_entry = None
-        self.youtube_handle_entry = None
 
     # ── SFX toggle ───────────────────────────────────────────────────────────
     def _build_sfx_button(self, parent=None):
@@ -1052,6 +1034,55 @@ class JarvisUI:
             return
         self.sound.play_error()
 
+    def set_mic_level(self, level: float):
+        """Update microphone level indicator (0.0–1.0). Thread-safe."""
+        if threading.current_thread() is not threading.main_thread():
+            self.safe_call(self.set_mic_level, level)
+            return
+        self._mic_level = max(0.0, min(1.0, level))
+
+    def _on_agent_approve(self):
+        if self.agent_approval_request and self.on_agent_approval:
+            req_id = self.agent_approval_request.get("request_id", "")
+            if req_id:
+                self.on_agent_approval(req_id, True)
+                self.agent_approval_request = None
+
+    def _on_agent_deny(self):
+        if self.agent_approval_request and self.on_agent_approval:
+            req_id = self.agent_approval_request.get("request_id", "")
+            if req_id:
+                self.on_agent_approval(req_id, False)
+                self.agent_approval_request = None
+
+    def _on_approval_toggle(self):
+        if self.on_approval_mode_toggle:
+            self.on_approval_mode_toggle()
+
+    def _on_config_change(self, key: str, delta: int):
+        if self.on_config_change:
+            self.on_config_change(key, delta)
+
+    def _update_agent_state(self, state: dict):
+        """Update ACA agent UI state from AgentManager. Thread-safe."""
+        if threading.current_thread() is not threading.main_thread():
+            self.safe_call(self._update_agent_state, state)
+            return
+        self.agent_goal_text = state.get("goal_text", "")
+        self.agent_steps = state.get("steps", [])
+        self.agent_active_step = state.get("active_step", 0)
+        self.agent_approval_request = state.get("approval_request")
+        self.agent_confidence = 0.0
+        self.agent_enabled = state.get("enabled", False)
+        self.agent_approval_mode = state.get("approval_mode", False)
+        self.agent_log = state.get("logs", [])
+        self.agent_max_steps = state.get("max_steps", 20)
+        self.agent_max_duration = state.get("max_duration", 300)
+        # Extract confidence from active step if available
+        steps = self.agent_steps
+        if steps and self.agent_active_step < len(steps):
+            self.agent_confidence = steps[self.agent_active_step].get("confidence", 0.0)
+
     def focus_panel(self, section: str, duration_ms: int = 4200):
         if threading.current_thread() is not threading.main_thread():
             self.safe_call(self.focus_panel, section, duration_ms)
@@ -1216,53 +1247,17 @@ class JarvisUI:
         self._draw()
         self.root.after(33, self._animate)
 
-    # ── Yardımcı ─────────────────────────────────────────────────────────────
-    @staticmethod
-    def _ac(r, g, b, a):
-        f = max(0, min(255, int(a))) / 255.0
-        return f"#{int(r*f):02x}{int(g*f):02x}{int(b*f):02x}"
+    # ── Yardımcı (delegated to ui/ sub-modules) ────────────────
+    _ac = staticmethod(_ac)
+    _split_summary_lines = staticmethod(_split_summary_lines)
+    _parse_weather_card = staticmethod(_parse_weather_card_impl)
+    _parse_health_card = staticmethod(_parse_health_card_impl)
+    _bar = _bar
+    _sparkline = _sparkline
+    _bracket = _bracket
 
     def _orb_rgb(self):
-        state = "PAUSED" if self.paused else self._jarvis_state
-        return ORB_COLORS.get(state, ORB_COLORS["LISTENING"])
-
-    @staticmethod
-    def _split_summary_lines(text: str, limit: int = 4) -> list[str]:
-        raw = (text or "").strip()
-        if not raw:
-            return []
-        raw = raw.replace(" ve ", ", ")
-        parts = [part.strip(" .") for part in raw.split(",") if part.strip()]
-        return parts[:limit]
-
-    def _parse_weather_card(self, text: str) -> dict:
-        if not text or "alınamadı" in text.lower() or "alınamadi" in text.lower():
-            return {
-                "city": "Istanbul",
-                "primary": "--",
-                "details": ["Hava durumu alınamadı."],
-            }
-
-        prefix, _, body = text.partition(":")
-        city = "Istanbul"
-        if " için" in prefix:
-            city = prefix.split(" için", 1)[0].strip().title()
-
-        details = [part.strip(" .") for part in body.split(",") if part.strip()]
-        primary = "--"
-        if details:
-            primary = details[0].replace(" derece", "°C")
-        return {
-            "city": city,
-            "primary": primary,
-            "details": details[1:4] or ["Anlık veri hazır."],
-        }
-
-    def _parse_health_card(self, text: str) -> list[str]:
-        if not text or "alınamadı" in text.lower() or "alınamadi" in text.lower():
-            return ["Sağlık verisi alınamadı."]
-        lines = self._split_summary_lines(text, limit=4)
-        return lines or ["Sağlık özeti hazır değil."]
+        return _orb_rgb_impl(self._jarvis_state, self.paused)
 
     def _kick_brief_refresh(self):
         if self._brief_refresh_busy:
@@ -1319,23 +1314,8 @@ class JarvisUI:
     def _draw_info_card(self, c, x0, y0, pw, ph, title, accent=C_PRI):
         focus = max(0.0, min(1.0, getattr(self, "_card_focus_boost", 0.0)))
         dimmed = bool(getattr(self, "_card_dimmed", False))
-        glow = int(55 + 120 * focus)
-        border = accent if focus > 0.08 else ("#35504d" if dimmed else self._ac(0, 120, 112, 190))
-        fill = "#071111" if dimmed else "#030d0d"
-        c.create_rectangle(x0, y0, x0+pw, y0+ph, fill=fill, outline="")
-        if focus > 0.08:
-            for inset in range(3):
-                c.create_rectangle(
-                    x0-inset, y0-inset, x0+pw+inset, y0+ph+inset,
-                    outline=self._ac(*ORB_COLORS["LISTENING"], max(12, glow - inset * 28)),
-                    width=1,
-                )
-        self._bracket(c, x0, y0, pw, ph, col=border, bl=10)
-        title_fill = "#6f7d7b" if dimmed else accent
-        line_fill = "#173130" if dimmed else C_DIM
-        c.create_text(x0+14, y0+14, text=title, fill=title_fill,
-                      font=font_display(10), anchor="w")
-        c.create_line(x0+12, y0+28, x0+pw-12, y0+28, fill=line_fill)
+        _draw_info_card_impl(c, x0, y0, pw, ph, title, accent,
+                             focus=focus, dimmed=dimmed)
 
     def _focus_boost_for(self, section: str) -> float:
         if self._panel_focus != section:
@@ -1571,6 +1551,138 @@ class JarvisUI:
         self._card_focus_boost = 0.0
         self._card_dimmed = False
 
+    # ── ACA Agent Panel ───────────────────────────────────────────────────────
+    def _draw_agent_panel(self, c):
+        if not self.agent_enabled:
+            return
+
+        x0 = self.LEFT_W + 12
+        pw = self.W - self.LEFT_W - self.RIGHT_W - 24
+        y0 = max(HDR_H + 10, self.FCY + self.FACE // 2 + 20)
+        ph = self.H - y0 - FOOTER_H - 14
+
+        if ph < 60:
+            return
+
+        pad = 10
+        idle = not self.agent_goal_text
+        accent = C_GREEN if idle else (C_ORG if self.agent_approval_request else C_PRI)
+
+        self._draw_info_card(c, x0, y0, pw, ph, "ACA AJAN", accent=accent)
+
+        cy = y0 + 42
+
+        mode_text = "🛡️ AÇIK" if self.agent_approval_mode else "🛡️ KAPALI"
+        mode_col = C_GREEN if self.agent_approval_mode else C_DIM
+        c.create_text(x0 + pw - pad, cy - 10, text=mode_text,
+                      fill=mode_col, font=font_body_bold(8), anchor="e")
+
+        if idle:
+            c.create_text(x0 + pad, cy, text="✅ Hazir",
+                          fill=C_GREEN, font=font_body_bold(12), anchor="w")
+            cy += 22
+            c.create_text(x0 + pad, cy,
+                          text=f"Adim: {self.agent_max_steps} | Sure: {self.agent_max_duration}s  [F9/F10]",
+                          fill=C_DIM, font=font_body(8), anchor="w")
+            return
+        # Goal text
+        goal_display = self.agent_goal_text[:60]
+        if len(self.agent_goal_text) > 60:
+            goal_display += "..."
+        c.create_text(x0 + pad, cy, text=f"🎯 {goal_display}",
+                      fill=C_TEXT, font=font_body_bold(10), anchor="w")
+        cy += 20
+
+        total = max(1, len(self.agent_steps))
+        done = sum(1 for s in self.agent_steps if s.get("status") in ("completed", "failed"))
+        bar_w = pw - pad * 2 - 50
+        bar_h = 6
+        frac = done / total
+        c.create_rectangle(x0 + pad, cy, x0 + pad + bar_w, cy + bar_h,
+                           fill="#061212", outline=C_DIM, width=1)
+        fw = max(1, int(bar_w * frac))
+        c.create_rectangle(x0 + pad + 1, cy + 1, x0 + pad + fw, cy + bar_h - 1,
+                           fill=C_GREEN if frac < 1 else C_PRI, outline="")
+        c.create_text(x0 + pad + bar_w + 6, cy + bar_h // 2,
+                      text=f"{done}/{total}", fill=C_MID,
+                      font=font_body(8), anchor="w")
+        cy += 14
+
+        # Step list (max 4 visible)
+        max_visible = min(len(self.agent_steps), 4)
+        for i in range(max_visible):
+            step = self.agent_steps[i]
+            sid = step.get("step_id", f"s{i}")
+            desc = step.get("description", "")
+            status = step.get("status", "pending")
+            is_active = (i == self.agent_active_step)
+
+            status_symbols = {
+                "pending": "○",
+                "in_progress": "◉",
+                "success": "✓",
+                "failed": "✗",
+                "cancelled": "—",
+            }
+            status_colors = {
+                "pending": C_MID,
+                "in_progress": C_ORG,
+                "success": C_GREEN,
+                "failed": C_RED,
+                "cancelled": C_DIM,
+            }
+            sym = status_symbols.get(status, "○")
+            col = status_colors.get(status, C_MID)
+
+            # Check if width is reasonable for text
+            desc_display = desc[:50]
+            if len(desc) > 50:
+                desc_display += "..."
+
+            c.create_text(x0 + pad + 4, cy, text=sym, fill=col,
+                          font=font_body_bold(12), anchor="w")
+            c.create_text(x0 + pad + 22, cy, text=desc_display, fill=C_TEXT if is_active else C_MID,
+                          font=font_body_bold(10) if is_active else font_body(10), anchor="w")
+            cy += 18
+
+        # Approval request section
+        if self.agent_approval_request:
+            cy += 4
+            req = self.agent_approval_request
+            c.create_line(x0 + pad, cy, x0 + pw - pad, cy, fill=C_ORG, width=1)
+            cy += 6
+            c.create_text(x0 + pad, cy, text="🛑 ONAY GEREKIYOR", fill=C_ORG2,
+                          font=font_body_bold(10), anchor="w")
+            cy += 16
+            c.create_text(x0 + pad, cy, text=req.get("description", "")[:60],
+                          fill=C_TEXT, font=font_body(9), anchor="w")
+            cy += 14
+            c.create_text(x0 + pad, cy, text=f"Arac: {req.get('tool_name', '')}",
+                          fill=C_MID, font=font_body(9), anchor="w")
+
+        if self.agent_log:
+            cy += 6
+            c.create_line(x0 + pad, cy, x0 + pw - pad, cy, fill=C_DIM, width=1)
+            cy += 4
+            c.create_text(x0 + pad, cy, text="📋 LOG",
+                          fill=C_PRI, font=font_body_bold(9), anchor="w")
+            cy += 14
+            max_log = min(len(self.agent_log), 5)
+            for entry in self.agent_log[-max_log:]:
+                display = entry[:65]
+                if len(entry) > 65:
+                    display += "..."
+                c.create_text(x0 + pad + 4, cy, text=display,
+                              fill=C_MID, font=font_body(8), anchor="w")
+                cy += 13
+
+        cy += 4
+        c.create_line(x0 + pad, cy, x0 + pw - pad, cy, fill=C_DIM, width=1)
+        cy += 4
+        c.create_text(x0 + pad, cy,
+                      text=f"Adim: {self.agent_max_steps} | Sure: {self.agent_max_duration}s  [F9/F10]",
+                      fill=C_DIM, font=font_body(7), anchor="w")
+
     # ── Sağ panel ─────────────────────────────────────────────────────────────
     def _draw_right_panel(self, c):
         x0  = self.CHAT_PANEL_X
@@ -1592,6 +1704,30 @@ class JarvisUI:
         c.create_text(x0+pw-pad, y0+16, text=st, fill=sc,
                       font=font_body_bold(10), anchor="e")
         c.create_line(x0+pad, y0+28, x0+pw-pad, y0+28, fill=C_DIM)
+
+        # Son 3 log satırı (hızlı görünüm)
+        ly = y0 + 38
+        for entry in list(self._debug_entries)[-3:]:
+            lvl_tag = entry[0] if isinstance(entry, tuple) else "INFO"
+            text = entry[1] if isinstance(entry, tuple) else entry
+            col = C_RED if lvl_tag == "ERROR" else C_GOLD if lvl_tag == "WARN" else C_MID
+            c.create_text(x0+pad, ly, text=text, fill=col,
+                          font=font_body(8), anchor="w")
+            ly += 15
+
+        # Mikrofon seviye göstergesi
+        mic_y = y0 + ph - 24
+        mic_w = pw - pad * 2
+        mic_h = 8
+        lvl = max(0.0, min(1.0, self._mic_level))
+        c.create_rectangle(x0+pad, mic_y, x0+pad+mic_w, mic_y+mic_h,
+                           fill="#061212", outline=C_DIM, width=1)
+        fw = max(1, int(mic_w * lvl))
+        col = C_GREEN if lvl < 0.5 else C_ORG if lvl < 0.8 else C_RED
+        c.create_rectangle(x0+pad+1, mic_y+1, x0+pad+fw, mic_y+mic_h-1,
+                           fill=col, outline="")
+        c.create_text(x0+pad+mic_w, mic_y-2, text="MIC", fill=C_MID,
+                      font=font_body(8), anchor="e")
 
     # ── ORB (ana çizim) ───────────────────────────────────────────────────────
     def _draw_orb(self, c):
@@ -1627,6 +1763,9 @@ class JarvisUI:
         # ── Yan paneller ──────────────────────────────────────────────────────
         self._draw_left_panel(c)
         self._draw_right_panel(c)
+
+        # ── ACA Agent Panel ──────────────────────────────────────────────────
+        self._draw_agent_panel(c)
 
         # ── Orb ──────────────────────────────────────────────────────────────
         self._draw_orb(c)
@@ -1676,230 +1815,4 @@ class JarvisUI:
         c.create_text(W-18, H-13, fill=C_DIM, font=font_body(9),
                       text="[F4] MUTE  [F5] PAUSE  [ESC] EXIT", anchor="e")
 
-    def _show_setup_ui(self, edit_mode: bool = False):
-        self._close_setup_ui()
-
-        self.setup_frame = tk.Frame(self.root, bg="#00080d",
-                                    highlightbackground=C_PRI,
-                                    highlightthickness=1)
-        setup_w = min(780, max(580, int(self.W * 0.44)))
-        setup_h = min(680, max(580, int(self.H * 0.55)))
-        self.setup_frame.place(relx=0.5, rely=0.5, anchor="center", width=setup_w, height=setup_h)
-        self.setup_frame.pack_propagate(False)
-
-        title = "◈ BACKEND & API AYARLARI" if edit_mode else "◈ İLK KURULUM GEREKLİ"
-        subtitle = (
-            "Gemini, YouTube ve yerel Ollama ayarlarinizi guncelleyin."
-            if edit_mode else
-            "Gemini API anahtarini girin veya yerel Ollama backend'ini secin."
-        )
-        config = load_app_config()
-
-        tk.Label(self.setup_frame, text=title,
-                 fg=C_PRI, bg="#00080d", font=font_display(20)).pack(pady=(20, 4))
-        tk.Label(self.setup_frame, text=subtitle,
-                 fg=C_MID, bg="#00080d", font=font_body(12)).pack(pady=(0, 10))
-
-        # --- BACKEND SELECTION ---
-        tk.Label(self.setup_frame, text="BACKEND SEÇİMİ",
-                 fg=C_PRI, bg="#00080d", font=font_body_bold(11)).pack(pady=(8, 2))
-        
-        backend_frame = tk.Frame(self.setup_frame, bg="#00080d")
-        backend_frame.pack(pady=4)
-
-        self._backend_var = tk.StringVar(value=config.get("backend_type", "gemini"))
-        self._ollama_model_var   = tk.StringVar(value=config.get("ollama_model", ""))
-        self._ollama_tts_var     = tk.StringVar(value=config.get("ollama_tts_voice", "piper-fahrettin"))
-
-        rb_gemini = tk.Radiobutton(
-            backend_frame, text="Gemini (Bulut)", variable=self._backend_var, value="gemini",
-            fg=C_TEXT, bg="#00080d", selectcolor="#00080d", activeforeground=C_PRI,
-            activebackground="#00080d", font=font_body(11), command=self._on_backend_change
-        )
-        rb_gemini.pack(side="left", padx=15)
-
-        rb_ollama = tk.Radiobutton(
-            backend_frame, text="Ollama (Yerel)", variable=self._backend_var, value="ollama",
-            fg=C_TEXT, bg="#00080d", selectcolor="#00080d", activeforeground=C_PRI,
-            activebackground="#00080d", font=font_body(11), command=self._on_backend_change
-        )
-        rb_ollama.pack(side="left", padx=15)
-
-        # --- OLLAMA MODEL SELECTION ---
-        model_frame = tk.Frame(self.setup_frame, bg="#00080d")
-        model_frame.pack(pady=4)
-        
-        tk.Label(model_frame, text="Ollama Modeli:", fg=C_DIM, bg="#00080d", font=font_body(11)).pack(side="left", padx=5)
-
-        models = get_ollama_models()
-        if not models:
-            models = ["Model Bulunamadı (Ollama kapalı?)"]
-        
-        if not self._ollama_model_var.get() or self._ollama_model_var.get() not in models:
-            self._ollama_model_var.set(models[0])
-
-        self.model_menu = tk.OptionMenu(model_frame, self._ollama_model_var, *models)
-        self.model_menu.config(
-            fg=C_PRI, bg="#000d12", activeforeground=C_BG,
-            activebackground=C_PRI, font=font_body(10),
-            borderwidth=0, highlightthickness=1,
-            highlightbackground=C_MID, width=28
-        )
-        self.model_menu["menu"].config(
-            fg=C_PRI, bg="#000d12", font=font_body(10),
-            activeforeground=C_BG, activebackground=C_PRI
-        )
-        self.model_menu.pack(side="left")
-
-        # --- OLLAMA TTS VOICE SELECTION ---
-        tts_frame = tk.Frame(self.setup_frame, bg="#00080d")
-        tts_frame.pack(pady=4)
-
-        tk.Label(
-            tts_frame, text="Ollama Ses Motoru:",
-            fg=C_DIM, bg="#00080d", font=font_body(11)
-        ).pack(side="left", padx=5)
-
-        tts_voices = get_ollama_tts_voices()
-        tts_ids    = [v["id"]    for v in tts_voices]
-        tts_labels = [v["label"] for v in tts_voices]
-
-        # Kaydedilmiş ses ID'si dropdown'daki etiketle eşleştirilir
-        saved_tts = self._ollama_tts_var.get()
-        if saved_tts not in tts_ids:
-            saved_tts = tts_ids[0] if tts_ids else "piper-fahrettin"
-        self._ollama_tts_var.set(saved_tts)
-
-        # Dahili görüntüleme için etiket değişkeni
-        selected_label = tts_labels[tts_ids.index(saved_tts)] if saved_tts in tts_ids else tts_labels[0]
-        self._ollama_tts_label_var = tk.StringVar(value=selected_label)
-
-        def _on_tts_select(label_chosen):
-            idx = tts_labels.index(label_chosen)
-            self._ollama_tts_var.set(tts_ids[idx])
-            self._ollama_tts_label_var.set(label_chosen)
-
-        self.tts_menu = tk.OptionMenu(tts_frame, self._ollama_tts_label_var, *tts_labels,
-                                      command=_on_tts_select)
-        self.tts_menu.config(
-            fg=C_PRI, bg="#000d12", activeforeground=C_BG,
-            activebackground=C_PRI, font=font_body(10),
-            borderwidth=0, highlightthickness=1,
-            highlightbackground=C_MID, width=32
-        )
-        self.tts_menu["menu"].config(
-            fg=C_PRI, bg="#000d12", font=font_body(10),
-            activeforeground=C_BG, activebackground=C_PRI
-        )
-        self.tts_menu.pack(side="left")
-
-        # --- GEMINI API KEY ---
-        tk.Label(self.setup_frame, text="GEMINI API KEY (Gemini için zorunlu)",
-                 fg=C_DIM, bg="#00080d", font=font_body(11)).pack(pady=(12, 2))
-
-        self.api_entry = tk.Entry(
-            self.setup_frame, width=54,
-            fg=C_TEXT, bg="#000d12", insertbackground=C_TEXT,
-            borderwidth=0, font=font_body(12), show="*")
-        self.api_entry.pack(pady=(0, 6), ipady=4)
-
-        current_key = str(config.get("gemini_api_key", "") or "")
-        if current_key:
-            self.api_entry.insert(0, current_key)
-
-        # --- YOUTUBE CONFIGS ---
-        if not (config.get("youtube_api_key") or "").strip() or not (config.get("youtube_channel_handle") or "").strip():
-            uyari_frame = tk.Frame(self.setup_frame, bg="#1a0f00")
-            uyari_frame.pack(pady=(4, 2), fill="x", padx=20)
-            uyari_text = ""
-            if not (config.get("youtube_api_key") or "").strip():
-                uyari_text += "⚠ YouTube API Key eksik — kanal istatistikleri calismaz. "
-            if not (config.get("youtube_channel_handle") or "").strip():
-                uyari_text += "⚠ YouTube handle girilmedi."
-            tk.Label(uyari_frame, text=uyari_text.strip(),
-                     fg=C_ORG, bg="#1a0f00", wraplength=500,
-                     font=font_body(9)).pack(pady=4)
-        tk.Label(self.setup_frame, text="YOUTUBE API KEY (Opsiyonel)",
-                 fg=C_DIM, bg="#00080d", font=font_body(11)).pack(pady=(6, 2))
-
-        self.youtube_api_entry = tk.Entry(
-            self.setup_frame, width=54,
-            fg=C_TEXT, bg="#000d12", insertbackground=C_TEXT,
-            borderwidth=0, font=font_body(12), show="*")
-        self.youtube_api_entry.pack(pady=(0, 6), ipady=4)
-        current_youtube_key = str(config.get("youtube_api_key", "") or "")
-        if current_youtube_key:
-            self.youtube_api_entry.insert(0, current_youtube_key)
-
-        tk.Label(self.setup_frame, text="YOUTUBE HANDLE / CHANNEL (Opsiyonel)",
-                 fg=C_DIM, bg="#00080d", font=font_body(11)).pack(pady=(6, 2))
-
-        self.youtube_handle_entry = tk.Entry(
-            self.setup_frame, width=54,
-            fg=C_TEXT, bg="#000d12", insertbackground=C_TEXT,
-            borderwidth=0, font=font_body(12))
-        self.youtube_handle_entry.pack(pady=(0, 6), ipady=4)
-        current_handle = str(config.get("youtube_channel_handle", "") or "")
-        if current_handle:
-            self.youtube_handle_entry.insert(0, current_handle)
-
-        buttons = tk.Frame(self.setup_frame, bg="#00080d")
-        buttons.pack(pady=12)
-
-        tk.Button(buttons, text="▸ KAYDET",
-                  command=self._save_api_key, bg=C_BG, fg=C_PRI,
-                  activebackground="#003344", font=font_body_bold(12),
-                  borderwidth=0, padx=20, pady=8).pack(side="left", padx=8)
-
-        if edit_mode:
-            tk.Button(buttons, text="KAPAT",
-                      command=self._close_setup_ui, bg="#08111a", fg=C_DIM,
-                      activebackground="#10202b", font=font_body_bold(12),
-                      borderwidth=0, padx=20, pady=8).pack(side="left", padx=8)
-
-        self._on_backend_change()
-
-    def _on_backend_change(self, val=None):
-        backend = self._backend_var.get()
-        if backend == "gemini":
-            self.model_menu.config(state="disabled")
-        else:
-            self.model_menu.config(state="normal")
-
-    def _save_api_key(self):
-        was_ready = self._api_key_ready
-        backend = self._backend_var.get()
-        key = self.api_entry.get().strip() if self.api_entry else ""
-        
-        if backend == "gemini" and not key:
-            self.write_log("SYS: Gemini secildi ancak API anahtari eksik.")
-            return
-
-        youtube_key = self.youtube_api_entry.get().strip() if self.youtube_api_entry else ""
-        youtube_handle = self.youtube_handle_entry.get().strip() if self.youtube_handle_entry else ""
-        ollama_model = self._ollama_model_var.get()
-        if "Yok" in ollama_model or "Bulunamadı" in ollama_model:
-            ollama_model = ""
-
-        ollama_tts_voice = getattr(self, "_ollama_tts_var", None)
-        ollama_tts_voice = ollama_tts_voice.get() if ollama_tts_voice else "piper-fahrettin"
-
-        save_app_config(
-            {
-                "gemini_api_key": key,
-                "youtube_api_key": youtube_key,
-                "youtube_channel_handle": youtube_handle,
-                "voice": self._current_voice,
-                "backend_type": backend,
-                "ollama_model": ollama_model,
-                "ollama_tts_voice": ollama_tts_voice,
-            }
-        )
-        self._close_setup_ui()
-        self._api_key_ready = True
-        self._refresh_settings_status()
-        if was_ready:
-            self.write_log("SYS: Ayarlar guncellendi.")
-        else:
-            self.set_state("LISTENING")
-            self.write_log("SYS: JARVIS hazır. Dinliyorum...")
+    # ── (Setup dialog extracted to ui/setup_dialog.py) ─────────────────────

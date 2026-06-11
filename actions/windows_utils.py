@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import ctypes
-import ctypes.wintypes
 import os
 import shutil
 import subprocess
@@ -13,6 +12,14 @@ from pathlib import Path
 
 import traceback
 IS_WINDOWS = os.name == "nt"
+
+# Windows-specific imports
+if IS_WINDOWS:
+    import ctypes.wintypes  # type: ignore[import-untyped]
+    import winreg
+else:
+    ctypes.wintypes = None  # type: ignore[unused-ignore]
+    winreg = None
 
 
 def open_url(url: str) -> None:

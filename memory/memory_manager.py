@@ -1,7 +1,9 @@
 """
-Kalıcı bellek — JSON dosyasına kaydedilir.
+Kalıcı bellek — local MemoryStore implementation.
 Adler ASİ tarafından yapılmıştır
 """
+from __future__ import annotations
+
 
 import json
 import re
@@ -9,30 +11,24 @@ import unicodedata
 from pathlib import Path
 
 import traceback
+
+from memory._store import MemoryStore
+
 BASE_DIR    = Path(__file__).resolve().parent.parent
 MEMORY_FILE = BASE_DIR / "memory" / "memory.json"
 
-
-def load_memory() -> dict:
-    try:
-        if MEMORY_FILE.exists():
-            with open(MEMORY_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-    except Exception:
-        traceback.print_exc()
-    return {}
+# MemoryStore instance — CRUD + persist + search (lazy init)
+_store: MemoryStore | None = None
 
 
-def update_memory(data: dict):
-    mem = load_memory()
-    _deep_merge(mem, data)
-    _write_memory(mem)
+def _get_store() -> MemoryStore:
+    global _store
+    if _store is None:
+        _store = MemoryStore(file_path=str(MEMORY_FILE))
+    return _store
 
 
-def _write_memory(mem: dict):
-    MEMORY_FILE.parent.mkdir(parents=True, exist_ok=True)
-    with open(MEMORY_FILE, "w", encoding="utf-8") as f:
-        json.dump(mem, f, indent=2, ensure_ascii=False)
+# ── Yardımcı fonksiyonlar (test ediliyor) ─────────────────────────
 
 
 def _deep_merge(base: dict, update: dict):
@@ -92,8 +88,34 @@ def _entry_matches(needle: str, category: str, item_key: str, item_value) -> boo
     return matched >= min(2, len(tokens))
 
 
+# ── Public API ────────────────────────────────────────────────────
+
+
+def load_memory() -> dict:
+    try:
+        _get_store().load()
+    except Exception:
+        traceback.print_exc()
+    return dict(_get_store().data)
+
+
+def update_memory(data: dict):
+    try:
+        store = _get_store()
+        store.load()
+        for k, v in data.items():
+            if isinstance(v, dict) and isinstance(store.data.get(k), dict):
+                _deep_merge(store.data[k], v)
+            else:
+                store.data[k] = v
+        store.save()
+    except Exception:
+        traceback.print_exc()
+
+
 def delete_memory(category: str = "", key: str = "", match_text: str = "") -> str:
-    mem = load_memory()
+    store = _get_store()
+    mem = store.data
     if not mem:
         return "Hafizada silinecek bir kayit yok."
 
@@ -107,7 +129,7 @@ def delete_memory(category: str = "", key: str = "", match_text: str = "") -> st
             del bucket[key]
             if not bucket:
                 mem.pop(category, None)
-            _write_memory(mem)
+            store.save()
             return f"{category}/{key} hafizadan kaldirildi."
         return "Bu hafiza kaydini bulamadim."
 
@@ -119,7 +141,7 @@ def delete_memory(category: str = "", key: str = "", match_text: str = "") -> st
         if not isinstance(bucket, dict):
             if _entry_matches(needle, cat, cat, bucket):
                 del mem[cat]
-                _write_memory(mem)
+                store.save()
                 return f"{cat} hafizadan kaldirildi."
             continue
 
@@ -128,7 +150,7 @@ def delete_memory(category: str = "", key: str = "", match_text: str = "") -> st
                 del bucket[item_key]
                 if not bucket:
                     mem.pop(cat, None)
-                _write_memory(mem)
+                store.save()
                 return f"{cat}/{item_key} hafizadan kaldirildi."
 
     return "Eslestigim bir hafiza kaydi bulamadim."

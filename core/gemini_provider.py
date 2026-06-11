@@ -13,6 +13,8 @@ import time
 import traceback
 from typing import Any
 
+import numpy as np
+
 from core.provider_base import BaseProvider
 from core.tool_registry import generate_gemini_declarations
 
@@ -93,6 +95,7 @@ class GeminiProvider(BaseProvider):
         self.session: Any = None
         self.audio_in_queue: asyncio.Queue | None = None
         self.out_queue: asyncio.Queue | None = None
+        self._min_energy: float = 200.0
 
     async def stop(self):
         self.session = None
@@ -188,10 +191,13 @@ class GeminiProvider(BaseProvider):
                 with j._speaking_lock:
                     jarvis_speaking = j._is_speaking
                 if not jarvis_speaking and not j.ui.muted and not j._paused:
-                    await self.out_queue.put({
-                        "data": data,
-                        "mime_type": "audio/pcm"
-                    })
+                    arr = np.frombuffer(data, dtype=np.int16).astype(np.float32)
+                    rms = float(np.sqrt(np.mean(arr ** 2)))
+                    if rms >= self._min_energy:
+                        await self.out_queue.put({
+                            "data": data,
+                            "mime_type": "audio/pcm"
+                        })
         except Exception as e:
             print(f"[JARVIS] ❌ Mikrofon: {e}")
             raise
@@ -209,7 +215,12 @@ class GeminiProvider(BaseProvider):
             while True:
                 async for response in self.session.receive():
                     if response.data:
-                        self.audio_in_queue.put_nowait(response.data)
+                        try:
+                            self.audio_in_queue.put_nowait(response.data)
+                        except asyncio.QueueFull:
+                            # Kuyruk dolu → en yeni chunk atlanir
+                            # Bu, baglantinin kopmasi yerine tercih edilir
+                            print("[JARVIS] ⚠️ Ses kuyrugu doldu, chunk atlandi")
 
                     if response.server_content:
                         sc = response.server_content
@@ -231,32 +242,26 @@ class GeminiProvider(BaseProvider):
                             if txt:
                                 in_buf.append(txt)
                                 j._user_initiated = True
-                                j.ui.mark_user_activity(True)
+                                j.ui.safe_call(j.ui.mark_user_activity, True)
 
                         if sc.turn_complete:
                             j.set_speaking(False)
 
                             full_in = " ".join(in_buf).strip()
                             if full_in:
-                                j.ui.write_log(f"Siz: {full_in}")
+                                j.ui.safe_call(j.ui.write_log, f"Siz: {full_in}")
                             in_buf = []
 
                             full_out = " ".join(out_buf).strip()
                             if full_out:
-                                j.ui.write_log(f"JARVIS: {full_out}")
+                                j.ui.safe_call(j.ui.write_log, f"JARVIS: {full_out}")
                                 if output_noise_samples:
-                                    j.ui.write_debug(
-                                        "Kısmen filtrelenen ses transcripti: " + " | ".join(output_noise_samples),
-                                        level="WARN",
-                                    )
+                                    j.ui.safe_call(j.ui.write_debug, "Kısmen filtrelenen ses transcripti: " + " | ".join(output_noise_samples), level="WARN")
                             elif output_noise:
-                                j.ui.write_log("ERR: JARVIS sesli yanıtını çözümlerken bir hata oluştu.")
+                                j.ui.safe_call(j.ui.write_log, "ERR: JARVIS sesli yanıtını çözümlerken bir hata oluştu.")
                                 if output_noise_samples:
-                                    j.ui.write_debug(
-                                        "Filtrelenen ham transcript: " + " | ".join(output_noise_samples),
-                                        level="WARN",
-                                    )
-                                j.ui.set_state("ERROR")
+                                    j.ui.safe_call(j.ui.write_debug, "Filtrelenen ham transcript: " + " | ".join(output_noise_samples), level="WARN")
+                                j.set_state("ERROR")
                             out_buf = []
                             output_noise = False
                             output_noise_samples = []
@@ -300,6 +305,30 @@ class GeminiProvider(BaseProvider):
         pa_instance = pyaudio.PyAudio()
         fmt = pyaudio.paInt16
 
+        # ── Hardware check: enumerate devices once before the loop ──
+        input_devices = 0
+        output_devices = 0
+        try:
+            from core.hardware_detector import HardwareDetector
+            hw_in = HardwareDetector.check_audio_input()
+            hw_out = HardwareDetector.check_audio_output()
+            input_devices = len(hw_in.devices)
+            output_devices = len(hw_out.devices)
+        except ImportError:
+            # Fallback: quick PyAudio enumeration
+            try:
+                cnt = pa_instance.get_device_count()
+                for i in range(cnt):
+                    info = pa_instance.get_device_info_by_index(i)
+                    if int(info.get("maxInputChannels", 0) or 0) > 0:
+                        input_devices += 1
+                    if int(info.get("maxOutputChannels", 0) or 0) > 0:
+                        output_devices += 1
+            except Exception:
+                pass
+
+        print(f"[Gemini Provider] Detected {input_devices} input, {output_devices} output device(s)")
+
         while True:
             # ── Pause check ──
             if j._paused:
@@ -307,9 +336,8 @@ class GeminiProvider(BaseProvider):
                 continue
 
             print("[JARVIS] 🔌 Bağlanıyor...")
-            j.ui.set_state("THINKING")
+            j.set_state("THINKING")
             config = self.build_config()
-
             client = genai.Client(
                 api_key=_get_api_key(),
                 http_options={"api_version": "v1alpha"}
@@ -319,7 +347,7 @@ class GeminiProvider(BaseProvider):
                 model=LIVE_MODEL, config=config
             ) as session:
                 self.session = session
-                self.audio_in_queue = asyncio.Queue()
+                self.audio_in_queue = asyncio.Queue(maxsize=200)
                 self.out_queue = asyncio.Queue(maxsize=10)
 
                 print("[JARVIS] ✅ Bağlandı.")
@@ -332,46 +360,65 @@ class GeminiProvider(BaseProvider):
                     except Exception:
                         pass
 
-                j.ui.set_state("LISTENING")
+                j.set_state("LISTENING")
                 logging.debug("[RUNNER] UI state set to LISTENING")
-                j.ui.write_log("SYS: JARVIS hazır. Dinliyorum...")
+                j.ui.safe_call(j.ui.write_log, "SYS: JARVIS hazır. Dinliyorum...")
                 logging.debug("[RUNNER] write_log called")
 
-                # Open audio streams sequentially (avoid PortAudio/ALSA segfaults)
-                print("[JARVIS] 🎤 Giriş akışı açılıyor...")
-                logging.debug("[RUNNER] Opening input stream")
-                input_stream = await asyncio.to_thread(
-                    pa_instance.open,
-                    format=fmt, channels=CHANNELS,
-                    rate=SEND_SAMPLE_RATE, input=True,
-                    frames_per_buffer=CHUNK_SIZE,
-                )
-                logging.debug("[RUNNER] Input stream opened successfully")
-
+                # ── Open audio streams ──
+                input_stream = None
+                output_stream = None
                 try:
-                    print("[JARVIS] 🔊 Çıkış akışı açılıyor...")
-                    logging.debug("[RUNNER] Opening output stream")
-                    output_stream = await asyncio.to_thread(
-                        pa_instance.open,
-                        format=fmt, channels=CHANNELS,
-                        rate=RECV_SAMPLE_RATE, output=True,
-                    )
-                    logging.debug("[RUNNER] Output stream opened successfully")
-                    try:
+                    if input_devices > 0:
+                        print("[JARVIS] 🎤 Giriş akışı açılıyor...")
+                        logging.debug("[RUNNER] Opening input stream")
+                        input_stream = await asyncio.to_thread(
+                            pa_instance.open,
+                            format=fmt, channels=CHANNELS,
+                            rate=SEND_SAMPLE_RATE, input=True,
+                            frames_per_buffer=CHUNK_SIZE,
+                        )
+                        logging.debug("[RUNNER] Input stream opened successfully")
+                    else:
+                        print("[JARVIS] ⚠️ Mikrofon bulunamadı — ses girişi olmadan çalışılıyor.")
+                        j.ui.safe_call(j.ui.write_log, "WARN: Mikrofon bulunamadı. Sadece yazılı komut kullanılabilir.")
+
+                    if output_devices > 0:
+                        print("[JARVIS] 🔊 Çıkış akışı açılıyor...")
+                        logging.debug("[RUNNER] Opening output stream")
+                        output_stream = await asyncio.to_thread(
+                            pa_instance.open,
+                            format=fmt, channels=CHANNELS,
+                            rate=RECV_SAMPLE_RATE, output=True,
+                        )
+                        logging.debug("[RUNNER] Output stream opened successfully")
+                    else:
+                        print("[JARVIS] ⚠️ Hoparlör bulunamadı — ses çıkışı olmadan çalışılıyor.")
+                        j.ui.safe_call(j.ui.write_log, "WARN: Hoparlör bulunamadı. Sadece yazılı yanıt verilecek.")
+
+                    # Start tasks only for available streams
+                    tasks = []
+                    if input_stream is not None:
+                        tasks.append(self._send_realtime())
+                        tasks.append(self._listen_audio(input_stream))
+                    tasks.append(self._receive_audio())
+                    if output_stream is not None:
+                        tasks.append(self._play_audio(output_stream))
+
+                    if tasks:
                         async with asyncio.TaskGroup() as tg:
-                            tg.create_task(self._send_realtime())
-                            tg.create_task(self._listen_audio(input_stream))
-                            tg.create_task(self._receive_audio())
-                            tg.create_task(self._play_audio(output_stream))
-                    finally:
+                            for t in tasks:
+                                tg.create_task(t)
+                finally:
+                    if output_stream is not None:
                         print("[JARVIS] 🔊 Çıkış akışı kapatılıyor...")
                         try:
                             output_stream.close()
                         except Exception:
                             traceback.print_exc()
-                finally:
-                    print("[JARVIS] 🎤 Giriş akışı kapatılıyor...")
-                    try:
-                        input_stream.close()
-                    except Exception:
-                        traceback.print_exc()
+                    if input_stream is not None:
+                        print("[JARVIS] 🎤 Giriş akışı kapatılıyor...")
+                        try:
+                            input_stream.close()
+                        except Exception:
+                            traceback.print_exc()

@@ -27,7 +27,7 @@ TRIGGERS = {
         r"(?:temp|geçici|gecici|gereksiz).*?(?:temizle|sil|temizlik|yap|bosalt|boşalt|kaldir|kaldır)",
         r"(?:disk|yer|alan|depolama).*?(?:temizle|bosalt|boşalt|ac|aç|yer ac|yer aç|alan ac|alan aç)",
         r"(?:cache|önbellek|onbellek|gecici dosya|geçici dosya).*?(?:temizle|sil|yok et|bosalt|boşalt)",
-        r"(?:cop|cöp|çöp|recycle).*?(?:temizle|bosalt|boşalt|sil)",
+        r"(?:cop|cöp|çöp|recycle).*?(?:temizle|sil)",
         r"(?:temizlik|sil).*?(?:temp|gecici|geçici|cache|dosya)",
         r"(?:gerekisiz|gereksiz).*?(?:dosya|dosyalar|veri).*?(?:temizle|sil)",
     ],

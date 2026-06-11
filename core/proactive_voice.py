@@ -103,6 +103,11 @@ class ProactiveVoice:
         """Fire a reminder notification."""
         msg = f"Hatirlatici: {reminder_text}"
         self._queue_message(msg)
+        try:
+            from core.notification import notify
+            notify("Hatırlatıcı", reminder_text, priority="normal")
+        except Exception:
+            pass
 
     def on_custom(self, message: str):
         """Queue a custom proactive message."""
@@ -141,7 +146,7 @@ class ProactiveVoice:
                 self.on_speak(message)
             else:
                 from actions.tts import speak_text
-                speak_text(message, ollama_voice=self.voice)
+                speak_text(message, voice=self.voice)
         except Exception:
             traceback.print_exc()
 

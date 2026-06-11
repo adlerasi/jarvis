@@ -53,14 +53,14 @@ def _extract_service_name(text: str) -> tuple[str, str]:
             service_name = svc
             break
 
-    # Action tespiti
+    # Action tespiti — restart önce kontrol edilir çünkü "yeniden başlat" "başlat"ı da içerir
     action = "status"
-    if any(w in text_lower for w in ["baslat", "başlat", "start", "calistir", "çalıştır", "ac", "aç"]):
+    if any(w in text_lower for w in ["yeniden baslat", "yeniden başlat", "restart", "tekrar baslat", "tekrar başlat"]):
+        action = "restart"
+    elif any(w in text_lower for w in ["baslat", "başlat", "start", "calistir", "çalıştır", "ac", "aç"]):
         action = "start"
     elif any(w in text_lower for w in ["durdur", "stop", "kapat", "dur"]):
         action = "stop"
-    elif any(w in text_lower for w in ["yeniden baslat", "yeniden başlat", "restart", "tekrar baslat", "tekrar başlat"]):
-        action = "restart"
 
     return service_name, action
 

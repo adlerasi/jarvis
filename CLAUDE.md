@@ -73,8 +73,8 @@ Adding a new tool = add handler method + registry entry. No elif chain.
 - **Framework**: `unittest` — no pytest, no mocks (use `@patch` only for side-effect tests like URL opening)
 - **Runner**: `.venv/bin/python3 -m unittest tests.test_smoke -v`
 - **Coverage target**: all 19+ modules, 0 skips
-- **263 tests** (growing): smoke, constants, pure functions, error paths. 3 pre-existing failures (TTS module API, debug log in root).
-- New module = new test class in `tests/test_smoke.py`
+- **1976 tests** (growing): smoke, constants, pure functions, error paths, skill tests. 0 pre-existing failures.
+- New module = new test class in `tests/test_smoke.py` or new file `tests/test_<module>.py`
 - Browser/web-dependent tests use `@patch` to prevent actual URL opens
 
 ## Key Config

@@ -77,8 +77,13 @@ def _extract_job_name(text: str) -> str:
     """Görev adı çıkarma."""
     text_lower = text.lower()
 
-    # "X gorevi ekle" -> X
+    # "gorev X ekle" -> X
     match = re.search(r'(?:gorev|görev|task)\s+(.+?)\s+(?:ekle|olustur|oluştur|kur)', text_lower)
+    if match:
+        return match.group(1).strip().capitalize()
+
+    # "X gorevi ekle" -> X (Turkish accusative suffix)
+    match = re.search(r'(.+?)\s+(?:gorev|görev|task)\w*\s+(?:ekle|olustur|oluştur|kur)', text_lower)
     if match:
         return match.group(1).strip().capitalize()
 
