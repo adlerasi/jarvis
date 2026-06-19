@@ -33,6 +33,7 @@ build/
 
 # Large model files
 voice/
+models/
 audio/lib/*.so*
 
 # Python venv
