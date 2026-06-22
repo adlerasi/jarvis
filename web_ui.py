@@ -95,8 +95,10 @@ class JarvisWebUI:
     def destroy(self):
         try:
             self.window.destroy()
-        except Exception:
-            pass
+        except Exception as e:
+            # Log the error for debugging purposes but don't let it propagate
+            # as this is called during cleanup/shutdown
+            print(f"[WebUI] Error during destroy: {e}")
 
     def _run_js(self, js: str):
         try:
