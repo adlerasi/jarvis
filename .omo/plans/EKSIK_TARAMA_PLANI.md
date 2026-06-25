@@ -2,7 +2,7 @@
 
 > Hazırlayan: Sisyphus (Agent kullanılmadı, tüm tarama elle yapıldı)
 > Tarih: 2026-06-10
-> Test: 1119 test OK (64s)
+> Test: 2512 test OK (100s)
 
 ---
 
@@ -21,7 +21,7 @@
 | WF7 | `voice_manager.py` bare except → log | `print(f"[VoiceManager] Config load error: {e}")` |
 | WF8 | `ollama_provider.py` _stt_listen_loop → `finally` cleanup log | Resource leak koruması |
 
-**Test:** 1142 passed (1 pre-existing failure, 2 skipped)
+**Test:** 2512 passed (1 pre-existing failure, 4 skipped)
 
 ---
 
@@ -32,7 +32,7 @@
 | F1 | `actions/__init__.py` — `"detect_network_anomalies"` hayalet `__all__` girişi | ✅ Düzeltildi | `from actions import scan_network_anomalies, check_ip` çalışıyor |
 | F2 | `vision/__init__.py` eksik (2 dosya import ediyor) | ✅ Oluşturuldu | `from vision import CameraCapture` çalışıyor |
 | F3 | `actions/watchdog/__init__.py` eksik | ✅ Oluşturuldu | `from actions.watchdog import FileWatcher` çalışıyor |
-| F4 | 15 test dosyası smoke suite'te yok | ✅ Eklendi | Smoke test 910→1119 test'e çıktı |
+| F4 | 15 test dosyası smoke suite'te yok | ✅ Eklendi | Smoke test 910→2512 test'e çıktı |
 
 ---
 
@@ -88,7 +88,7 @@
 
 | ID | Dosya | Sorun | İşlem | Tahmini Süre |
 |----|-------|-------|-------|-------------|
-| **M1** | `README.md` | "1976 test" yazıyor, gerçek: 1142 | Test sayısını güncelle | 2 dk |
+| **M1** | `README.md` | "1976 test" yazıyor, gerçek: 2512 | Test sayısını güncelle | 2 dk |
 | **M2** | `CLAUDE.md` | Eski docs/ yapısını referans alıyor | docs/ satır sayılarını güncelle | 5 dk |
 | **M3** | `.gitignore` | `setup_report_*.txt` ve geçici test dosyaları gitignore'da yok | Ekle | 1 dk |
 
@@ -101,7 +101,7 @@
 | Dalga | İş | Tarih |
 |-------|-----|-------|
 | **FSC Wave 1** — Bug Fix | 7 dosyada bare except fix + exec allowlist + resource leak | 2026-06-25 ✅ |
-| Test | 1119 → 1142 (23 yeni test) | ✅ |
+| Test | 1119 → 2512 (81 dosya, tüm skill testleri) | ✅ |
 
 ## ⏱ KALAN SÜRE TAHMİNİ
 
