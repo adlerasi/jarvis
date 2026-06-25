@@ -48,8 +48,8 @@ def get_ollama_tts_voices() -> list[dict]:
                     voices.append({"id": "edge-ahmet", "label": "Edge – Ahmet Neural (Türkçe Erkek)"})
                 elif line.startswith("tr-TR-EmelNeural"):
                     voices.append({"id": "edge-emel",  "label": "Edge – Emel Neural (Türkçe Kadın)"})
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[App Config] Error fetching edge-tts voices: {e}")
 
     # ── spd-say fallback (her zaman dahil et) ────────────────────────────────
     voices.append({"id": "spd-say", "label": "spd-say (Sistem Sesi)"})
@@ -63,8 +63,8 @@ def load_app_config() -> dict:
         raw = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
         if isinstance(raw, dict):
             config.update(raw)
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[App Config] Error loading config (using defaults): {e}")
     return config
 
 
@@ -100,5 +100,6 @@ def get_ollama_models() -> list[str]:
             data = json.loads(response.read().decode("utf-8"))
             models = data.get("models", [])
             return [m["name"] for m in models if "name" in m]
-    except Exception:
+    except Exception as e:
+        print(f"[App Config] Error fetching Ollama models: {e}")
         return []
