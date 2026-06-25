@@ -135,7 +135,8 @@ class SetupDialog:
 
         selected_label = (
             tts_labels[tts_ids.index(saved_tts)]
-            if saved_tts in tts_ids else tts_labels[0]
+            if saved_tts in tts_ids and tts_labels
+            else (tts_labels[0] if tts_labels else saved_tts)
         )
         self._ollama_tts_label_var = tk.StringVar(value=selected_label)
 

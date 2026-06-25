@@ -109,6 +109,7 @@ from tests.test_hardware_detector import *
 from tests.test_aca_agent import *
 from tests.test_theme import *
 from tests.test_camera_capture import *
+from tests.test_setup_dialog import *
 
 # =============================================================================
 
