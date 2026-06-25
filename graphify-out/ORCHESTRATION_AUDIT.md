@@ -134,7 +134,7 @@ Missing: No `docs/ARCHITECTURE.md` exists despite being referenced in some comme
 Real-code integrity:   🟢 99.5% — clean, no mock/stub contamination
 Orchestration design: 🟢 Clean two-tier (UI+App), no anti-patterns
 Import hygiene:       🟢 Zero cycles — exemplary DAG dependency structure
-Test coverage:        🟡 Good (1976 tests) but integration-light
+Test coverage:        🟡 Good (1142 tests) but integration-light
 Documentation:        🟡 Complete for devs, thin for end-users
 Platform compat:      🟡 Windows primary, Linux secondary (documented fallbacks)
 ```
@@ -156,7 +156,7 @@ Platform compat:      🟡 Windows primary, Linux secondary (documented fallback
 
 ### Priority 3: Platform Compatibility
 - Add Linux-specific test stubs for `windows_utils.py` fallbacks
-- Run full test suite on Linux CI (currently 1976 OK on Linux)
+- Run full test suite on Linux CI (currently 1142 OK on Linux)
 
 ### Priority 4: Graphify Semantic Extraction
 - Bypass Gemini quota: write a fast local script that reads all 208 code files' docstrings and produces semantic nodes/edges directly
