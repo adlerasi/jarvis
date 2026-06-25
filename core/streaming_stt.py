@@ -224,6 +224,8 @@ class StreamingSTT:
 
     def clear(self) -> None:
         self._current_text = ""
+        self._final_text = ""
+        self._speech_buffer = bytearray()
 
     def get_stats(self) -> dict[str, Any]:
         return {
