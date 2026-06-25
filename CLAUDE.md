@@ -73,7 +73,7 @@ Adding a new tool = add handler method + registry entry. No elif chain.
 - **Framework**: `unittest` — no pytest, no mocks (use `@patch` only for side-effect tests like URL opening)
 - **Runner**: `.venv/bin/python3 -m unittest tests.test_smoke -v`
 - **Coverage target**: all 19+ modules, 0 skips
-- **1976 tests** (growing): smoke, constants, pure functions, error paths, skill tests. 0 pre-existing failures.
+- **1142 tests** (growing): smoke, constants, pure functions, error paths, skill tests. 0 pre-existing failures.
 - New module = new test class in `tests/test_smoke.py` or new file `tests/test_<module>.py`
 - Browser/web-dependent tests use `@patch` to prevent actual URL opens
 
@@ -120,6 +120,6 @@ Adding a new tool = add handler method + registry entry. No elif chain.
 ## Checklist Before Shipping
 
 - [ ] `lsp_diagnostics` clean on changed files
-- [ ] `.venv/bin/python3 -m unittest tests.test_smoke -v` passes (263 OK)
+- [ ] `.venv/bin/python3 -m unittest tests.test_smoke -v` passes (1142 OK)
 - [ ] `build.sh` or `build.ps1` compiles clean
 - [ ] No dead code, no mock/placeholder tests

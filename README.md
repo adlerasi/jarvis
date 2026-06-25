@@ -216,7 +216,7 @@ jarvis/
 ├── Fonts/                   # Özel fontlar
 ├── helpers/bin/             # Binary bağımlılıklar
 ├── tests/                   # Testler
-│   ├── test_smoke.py        # 910 smoke test (split modüller)
+│   ├── test_smoke.py        # 1142 smoke test (split modüller)
 │   ├── test_system_doctor.py
 │   ├── test_process_manager.py
 │   ├── test_file_guardian.py
@@ -264,8 +264,8 @@ UI ayarları uygulama içi `Settings` panelinden yapılır:
 | Python dosyası | 45+ |
 | Action modülü | 20 |
 | Audio modülü | 3 (noise_suppressor, microphone, lib) |
-| Skill modülü | 15 (14 + 1 demo skill) |
-| Test sayısı | 1261 (unittest, 2 skip) |
+| Skill modülü | 17 |
+| Test sayısı | 1142 (unittest, 2 skip) |
 | UI satırı | ~2,300 |
 | Ana çekirdek | ~2,000 |
 
