@@ -11,6 +11,7 @@ __pycache__/
 config/api_keys.json
 memory/memory.json
 memory/phone_book.json
+memory/*.db
 
 # Runtime artifacts
 *.log
@@ -41,6 +42,9 @@ audio/lib/*.so*
 
 # Setup reports
 setup_report_*.txt
+
+# Auto-generated graph data
+graphify-out/
 
 # OpenCode session artifacts
 .omo/run-continuation/
