@@ -51,7 +51,6 @@ threading.excepthook = handle_thread_exception
 
 import asyncio
 import os
-from google.genai import types
 
 from app_config import load_app_config, validate_config
 from ui import JarvisUI
@@ -534,8 +533,25 @@ class JarvisLive:
                 self.barge_in.set_jarvis_speaking(False)
 
     def shutdown(self):
-        """Signal the asyncio run loop to exit cleanly."""
+        """Signal shutdown, stop provider, clean up resources."""
         self._shutdown_event.set()
+        # Stop audio / provider resources
+        if self._provider is not None:
+            try:
+                if hasattr(self._provider, "stop"):
+                    self._provider.stop()
+            except Exception:
+                pass
+            self._provider = None
+        # Stop streaming STT
+        if self.streaming_stt_engine is not None:
+            try:
+                self.streaming_stt_engine.stop()
+            except Exception:
+                pass
+            self.streaming_stt_engine = None
+        # Shut down thread pool
+        self._stt_cb_executor.shutdown(wait=False)
 
     def speak_error(self, tool_name: str, error: str):
         short = str(error)[:120]
@@ -574,7 +590,16 @@ class JarvisLive:
     # ── Tool dispatch map ─────────────────────────────────────
     _TOOL_HANDLERS: dict[str, str] = {}
 
-    async def _execute_tool(self, fc) -> types.FunctionResponse:
+    @staticmethod
+    def _make_function_response(fc, name: str, result: str):
+        """Lazy import of google.genai.types.FunctionResponse."""
+        from google.genai import types as _genai_types
+        return _genai_types.FunctionResponse(
+            id=fc.id, name=name,
+            response={"result": result}
+        )
+
+    async def _execute_tool(self, fc) -> "FunctionResponse":
         name = fc.name
         args = dict(fc.args or {})
         print(f"[JARVIS] 🔧 {name} {args}")
@@ -614,10 +639,7 @@ class JarvisLive:
             self.set_state("LISTENING")
 
         print(f"[JARVIS] 📤 {name} → {str(result)[:80]}")
-        return types.FunctionResponse(
-            id=fc.id, name=name,
-            response={"result": result}
-        )
+        return self._make_function_response(fc, name, result)
 
     def _build_tool_handler_map(self):
         self._TOOL_HANDLERS = dict(TOOL_HANDLER_MAP)

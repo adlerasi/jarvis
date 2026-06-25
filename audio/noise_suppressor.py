@@ -48,9 +48,11 @@ class NoiseSuppressor:
         self.sample_rate: int = sample_rate
         self._native_mode: bool = sample_rate == self.SAMPLE_RATE
         self.enabled: bool = enabled and sample_rate in self.SUPPORTED_RATES
+        self._lib_dir: str | Path | None = lib_dir
         self._lib: ctypes.CDLL | None = None
         self._state: ctypes.c_void_p | None = None
         self._vad_prob: float = 0.0
+        self._init_attempted: bool = False
 
         if not self.enabled:
             logger.warning(
@@ -58,18 +60,28 @@ class NoiseSuppressor:
                 "Bypass modu aktif. Gürültü bastırma yapılmayacak.",
                 sample_rate,
             )
-            return
 
+    # ── Lazy Initialization ─────────────────────────────────────────────────
+
+    def _ensure_loaded(self) -> bool:
+        """Deferred RNNoise library load — called on first process_frame call."""
+        if self._init_attempted:
+            return self.enabled and self._lib is not None
+        self._init_attempted = True
+        if not self.enabled:
+            return False
         try:
-            self._lib = self._load_library(lib_dir)
+            self._lib = self._load_library(self._lib_dir)
             self._state = self._lib.rnnoise_create(None)
             if not self._state:
                 raise RuntimeError("rnnoise_create NULL döndürdü.")
-            logger.info("[RNNoise] Gürültü bastırma başarıyla yüklendi.")
+            logger.info("[RNNoise] Gürültü bastırma başarıyla yüklendi (lazy).")
+            return True
         except Exception as exc:
             logger.error("[RNNoise] Yükleme hatası: %s. Bypass moduna geçiliyor.", exc)
             self.enabled = False
             self._cleanup()
+            return False
 
     # ── Kütüphane Yükleme ──────────────────────────────────────────────────
 
@@ -146,7 +158,10 @@ class NoiseSuppressor:
         Returns:
             (480,) şeklinde int16 temizlenmiş numpy array.
         """
-        if not self.enabled or self._lib is None or self._state is None:
+        if not self.enabled:
+            return pcm_int16
+
+        if not self._ensure_loaded():
             return pcm_int16
 
         if len(pcm_int16) != self.FRAME_SIZE:
@@ -180,7 +195,10 @@ class NoiseSuppressor:
         Returns:
             (480,) şeklinde int16 temizlenmiş numpy array, 16 kHz.
         """
-        if not self.enabled or self._lib is None or self._state is None:
+        if not self.enabled:
+            return pcm_int16_16k
+
+        if not self._ensure_loaded():
             return pcm_int16_16k
 
         in_float = pcm_int16_16k.astype(np.float32) / 32768.0
@@ -217,7 +235,10 @@ class NoiseSuppressor:
         Returns:
             (N,) şeklinde float32 temizlenmiş numpy array.
         """
-        if not self.enabled or self._lib is None:
+        if not self.enabled:
+            return audio_float32
+
+        if not self._ensure_loaded():
             return audio_float32
 
         if original_rate and original_rate != self.SAMPLE_RATE:
