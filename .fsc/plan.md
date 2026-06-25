@@ -22,7 +22,7 @@ TASK PLAN
 | 16 | `app_config.py:99` | `timeout=3` zaten var | ✅ (pre-existing) |
 | 17 | `voice_manager.py:40` | `except Exception: traceback.print_exc()` → `as e` + log | ✅ |
 
-**Test:** 1142 passed, 1 pre-existing failure (Icon/ dir), 2 skipped
+**Test:** 2512 passed, 1 pre-existing failure (Icon/ dir), 4 skipped
 
 ---
 

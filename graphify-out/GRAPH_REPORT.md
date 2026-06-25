@@ -1187,7 +1187,7 @@ Nodes (3): audio.microphone.MicrophoneStream init ve callback testleri., audio.m
 
 ### Community 201 - "Skill Test Files (8 files)"
 Cohesion: 0.67
-Nodes (3): Skill Test Files (8 files), Test Suite (1142 tests), Unittest Framework
+Nodes (3): Skill Test Files (8 files), Test Suite (2512 tests), Unittest Framework
 
 ## Knowledge Gaps
 - **72 isolated node(s):** `processing`, `searching`, `calculating`, `thinking`, `error_recovery` (+67 more)

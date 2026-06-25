@@ -920,7 +920,7 @@ finally:
 | Audio modülü | 5 (noise_suppressor, microphone, lib, audio_system/) |
 | Skill modülü | 17 |
 | UI satırı | ~2,300 (ui.py + ui/ paketi) |
-| Test sayısı | 1261 (unittest, 2 skip) |
+| Test sayısı | 2512 (unittest, 1 failure, 4 skip) |
 | Dokümantasyon | 19 .md dosyası (docs/) |
 
 ---
