@@ -380,10 +380,10 @@ jarvis/
 
 | 🇹🇷 Anahtar | Durum | 🇹🇷 Açıklama |
 |-------------|-------|-------------|
-| `gemini_api_key` | ✅ Zorunlu | Gemini AI anahtarı — birincil backend için şart |
-| `backend_type` | ✅ Zorunlu | `gemini` veya `ollama` — hangi modda çalışacağını belirler |
-| `voice` | ⭐ Önerilen | Gemini ses modeli (varsayılan: `Charon`) |
-| `ollama_model` | ⭐ Önerilen | Ollama model adı (örn: `qwen2.5:1.5b`) |
+| `backend_type` | ✅ Zorunlu | `"gemini"` veya `"ollama"` — backend seçimi |
+| `voice` | ✅ Zorunlu | Gemini ses modeli (varsayılan: `Charon`) |
+| `gemini_api_key` | ⚠️ Gemini modunda zorunlu | Google Gemini AI API anahtarı |
+| `ollama_model` | ⚠️ Ollama modunda zorunlu | Ollama model adı (varsayılan: `qwen2.5:1.5b`) |
 | `ollama_tts_voice` | ⭐ Önerilen | Yerel TTS sesi (varsayılan: `piper-fahrettin`) |
 | `youtube_api_key` | — Opsiyonel | YouTube Data API anahtarı |
 | `youtube_channel_handle` | — Opsiyonel | YouTube kanal handle'ı |

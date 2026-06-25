@@ -16,7 +16,7 @@ DEFAULT_CONFIG = {
     "youtube_api_key": "",
     "youtube_channel_handle": "",
     "backend_type": "gemini",
-    "ollama_model": "",
+    "ollama_model": "qwen2.5:1.5b",
     "ollama_tts_voice": "piper-fahrettin",   # default local Piper voice
 }
 
@@ -84,6 +84,46 @@ def save_app_config(updates: dict) -> dict:
 
 def get_app_config_value(key: str, default=None):
     return load_app_config().get(key, default)
+
+
+VALID_BACKEND_TYPES = ("gemini", "ollama")
+
+
+def validate_config(config: dict | None = None) -> list[str]:
+    """Validate configuration and return list of error messages (empty = valid)."""
+    if config is None:
+        config = load_app_config()
+
+    errors: list[str] = []
+
+    # 1. backend_type — zorunlu, sadece gecerli degerler
+    backend = str(config.get("backend_type", "") or "").strip().lower()
+    if not backend:
+        errors.append("backend_type: zorunlu — 'gemini' veya 'ollama' secin.")
+    elif backend not in VALID_BACKEND_TYPES:
+        errors.append(f"backend_type: '{backend}' gecersiz — sadece 'gemini' veya 'ollama'.")
+
+    # 2. voice — zorunlu (varsayilan Charon)
+    voice = str(config.get("voice", "") or "").strip()
+    if not voice:
+        errors.append("voice: zorunlu — en azindan varsayilan 'Charon' kullanin.")
+
+    # 3. Gemini modu -> api_key zorunlu
+    if backend == "gemini":
+        key = str(config.get("gemini_api_key", "") or "").strip()
+        if not key:
+            errors.append("gemini_api_key: Gemini modu icin zorunlu.")
+
+    # 4. Ollama modu -> ollama_model zorunlu
+    if backend == "ollama":
+        model = str(config.get("ollama_model", "") or "").strip()
+        if not model:
+            errors.append("ollama_model: Ollama modu icin zorunlu.")
+
+    # 5. Ollama TTS voice — opsiyonel (varsayilan var)
+    # 6. youtube* — tamamen opsiyonel
+
+    return errors
 
 
 def has_gemini_api_key() -> bool:

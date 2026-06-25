@@ -38,11 +38,11 @@ app_config.py             # Python tarafindaki config okuyucu
 
 | Anahtar | Zorunlu | Varsayilan | Aciklama |
 |---------|---------|-----------|----------|
-| `gemini_api_key` | Evet | `""` | Google Gemini AI API anahtari |
-| `backend_type` | Hayir | `"gemini"` | `"gemini"` veya `"ollama"` |
-| `voice` | Hayir | `"Charon"` | Gemini ses modeli |
-| `ollama_model` | Hayir | `""` | Ollama model adi (orn: `qwen2.5:1.5b`) |
-| `ollama_tts_voice` | Hayir | `"piper-fahrettin"` | Local TTS sesi |
+| `backend_type` | **Evet** | `"gemini"` | `"gemini"` veya `"ollama"` — backend secimi zorunlu |
+| `voice` | **Evet** | `"Charon"` | Gemini ses modeli |
+| `gemini_api_key` | Gemini modunda **Evet** | `""` | Google Gemini AI API anahtari |
+| `ollama_model` | Ollama modunda **Evet** | `"qwen2.5:1.5b"` | Ollama model adi |
+| `ollama_tts_voice` | Hayir | `"piper-fahrettin"` | Local TTS sesi (varsayilan yeterli) |
 | `youtube_api_key` | Hayir | `""` | YouTube Data API v3 anahtari |
 | `youtube_channel_handle` | Hayir | `""` | Varsayilan YouTube kanal handle'i |
 

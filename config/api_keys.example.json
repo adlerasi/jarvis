@@ -3,7 +3,7 @@
   "voice": "Charon",
   "backend_type": "gemini",
   "ollama_model": "qwen2.5:1.5b",
-  "ollama_tts_voice": "",
+  "ollama_tts_voice": "piper-fahrettin",
   "youtube_api_key": "",
   "youtube_channel_handle": ""
 }

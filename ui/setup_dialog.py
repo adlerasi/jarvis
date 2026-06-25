@@ -10,7 +10,7 @@ import threading
 import traceback
 import tkinter as tk
 
-from app_config import load_app_config, save_app_config, get_ollama_models, get_ollama_tts_voices
+from app_config import load_app_config, save_app_config, get_ollama_models, get_ollama_tts_voices, validate_config
 from ui.theme import (
     C_BG, C_PRI, C_MID, C_TEXT, C_DIM, C_DIMMER, C_ORG, C_GOLD, C_RED,
     font_body, font_body_bold, font_display,
@@ -253,11 +253,6 @@ class SetupDialog:
 
         backend = self._backend_var.get() if self._backend_var else "gemini"
         key = self.api_entry.get().strip() if self.api_entry else ""
-
-        if backend == "gemini" and not key:
-            jarvis.write_log("SYS: Gemini secildi ancak API anahtari eksik.")
-            return
-
         youtube_key = (
             self.youtube_api_entry.get().strip()
             if self.youtube_api_entry else ""
@@ -269,20 +264,37 @@ class SetupDialog:
         ollama_model = self._ollama_model_var.get() if self._ollama_model_var else ""
         if "Yok" in ollama_model or "Bulunamadı" in ollama_model:
             ollama_model = ""
-
         ollama_tts_voice = "piper-fahrettin"
         if self._ollama_tts_var is not None:
             ollama_tts_voice = self._ollama_tts_var.get()
+        voice = getattr(jarvis, "_current_voice", "Charon")
 
-        save_app_config({
+        # ── Validate with centralized function ──
+        config = {
             "gemini_api_key": key,
             "youtube_api_key": youtube_key,
             "youtube_channel_handle": youtube_handle,
-            "voice": getattr(jarvis, "_current_voice", "Charon"),
+            "voice": voice,
             "backend_type": backend,
             "ollama_model": ollama_model,
             "ollama_tts_voice": ollama_tts_voice,
-        })
+        }
+        errors = validate_config(config)
+        if errors:
+            for err in errors:
+                jarvis.write_log(f"SYS: {err}")
+            # Flash the dialog border to indicate error
+            if self.frame and self.frame.winfo_exists():
+                orig_bg = self.frame.cget("highlightbackground")
+                self.frame.config(highlightbackground=C_RED)
+                jarvis.root.after(2000, lambda: (
+                    self.frame.config(highlightbackground=orig_bg)
+                    if self.frame and self.frame.winfo_exists()
+                    else None
+                ))
+            return
+
+        save_app_config(config)
         self._close()
         jarvis._api_key_ready = True
         jarvis._refresh_settings_status()

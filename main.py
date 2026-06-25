@@ -53,7 +53,7 @@ import asyncio
 import os
 from google.genai import types
 
-from app_config import load_app_config
+from app_config import load_app_config, validate_config
 from ui import JarvisUI
 from memory.memory_manager import update_memory, delete_memory
 from actions.open_app import open_app
@@ -635,7 +635,14 @@ class JarvisLive:
                 continue
 
             cfg = load_app_config()
-            backend = cfg.get("backend_type", "gemini")
+            errors = validate_config(cfg)
+            if errors:
+                for err in errors:
+                    print(f"[JARVIS] ⚠️ Config hatasi: {err}")
+                    self.ui.safe_call(self.ui.write_log, f"Config: {err}")
+                backend = "gemini"
+            else:
+                backend = cfg.get("backend_type", "gemini")
             print(f"[DEBUG] Loaded config: {cfg}")
             print(f"[DEBUG] Selected backend: {backend}")
 
