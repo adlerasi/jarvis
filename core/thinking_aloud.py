@@ -10,7 +10,7 @@ import random
 import threading
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import traceback
 
@@ -58,7 +58,7 @@ class ThinkingAloud:
         min_interval: float = 3.0,
         max_interval: float = 8.0,
         on_phrase: Optional[callable] = None,
-    ):
+    ) -> None:
         self.phrases = _load_phrases(phrases_path)
         self.voice = voice
         self.min_interval = min_interval
@@ -72,7 +72,7 @@ class ThinkingAloud:
 
     # ── Lifecycle ─────────────────────────────────────────────────────────────
 
-    def start(self, context: str = "processing"):
+    def start(self, context: str = "processing") -> None:
         """Start thinking aloud in background."""
         if self._active:
             return
@@ -84,7 +84,7 @@ class ThinkingAloud:
         # Speak first phrase immediately
         self._speak_random()
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop thinking aloud."""
         self._active = False
         self._stop_event.set()
@@ -92,7 +92,7 @@ class ThinkingAloud:
             self._thread.join(timeout=2.0)
             self._thread = None
 
-    def set_context(self, context: str):
+    def set_context(self, context: str) -> None:
         """Change thinking context (processing, searching, calculating, thinking, error_recovery)."""
         if context in self.phrases:
             self._context = context
@@ -103,7 +103,7 @@ class ThinkingAloud:
 
     # ── Internal ──────────────────────────────────────────────────────────────
 
-    def _loop(self):
+    def _loop(self) -> None:
         while not self._stop_event.is_set():
             interval = random.uniform(self.min_interval, self.max_interval)
             if self._stop_event.wait(interval):
@@ -111,7 +111,7 @@ class ThinkingAloud:
             if self._active:
                 self._speak_random()
 
-    def _speak_random(self):
+    def _speak_random(self) -> None:
         """Pick and speak a random phrase from current context."""
         try:
             phrases = self.phrases.get(self._context, self.phrases.get("processing", []))
@@ -128,7 +128,7 @@ class ThinkingAloud:
         except Exception:
             traceback.print_exc()
 
-    def get_stats(self) -> dict:
+    def get_stats(self) -> dict[str, Any]:
         return {
             "active": self._active,
             "context": self._context,

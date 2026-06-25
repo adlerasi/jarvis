@@ -23,7 +23,7 @@ class SkillInfo:
     Delegates to the engine's SkillInfo internally.
     """
 
-    def __init__(self, _engine_info: _EngineSkillInfo | None = None, **kwargs):
+    def __init__(self, _engine_info: _EngineSkillInfo | None = None, **kwargs) -> None:
         if _engine_info is not None:
             self._info = _engine_info
         else:
@@ -51,7 +51,7 @@ class SkillInfo:
         return self._info.skill_id
 
     @skill_id.setter
-    def skill_id(self, val: str):
+    def skill_id(self, val: str) -> None:
         self._info.skill_id = val
 
     @property
@@ -59,7 +59,7 @@ class SkillInfo:
         return self._info.name
 
     @name.setter
-    def name(self, val: str):
+    def name(self, val: str) -> None:
         self._info.name = val
 
     @property
@@ -67,7 +67,7 @@ class SkillInfo:
         return self._info.version
 
     @version.setter
-    def version(self, val: str):
+    def version(self, val: str) -> None:
         self._info.version = val
 
     @property
@@ -75,7 +75,7 @@ class SkillInfo:
         return self._info.folder
 
     @folder.setter
-    def folder(self, val: str):
+    def folder(self, val: str) -> None:
         self._info.folder = val
 
     @property
@@ -83,7 +83,7 @@ class SkillInfo:
         return self._info.module_path
 
     @module_path.setter
-    def module_path(self, val: Path):
+    def module_path(self, val: Path) -> None:
         self._info.module_path = val
 
     @property
@@ -91,7 +91,7 @@ class SkillInfo:
         return self._info.md_path
 
     @md_path.setter
-    def md_path(self, val: Path | None):
+    def md_path(self, val: Path | None) -> None:
         self._info.md_path = val
 
     @property
@@ -99,7 +99,7 @@ class SkillInfo:
         return self._info.triggers_path
 
     @triggers_path.setter
-    def triggers_path(self, val: Path | None):
+    def triggers_path(self, val: Path | None) -> None:
         self._info.triggers_path = val
 
     @property
@@ -107,15 +107,15 @@ class SkillInfo:
         return self._info.route_func
 
     @route_func.setter
-    def route_func(self, val: Callable[[str], str | None] | None):
+    def route_func(self, val: Callable[[str], str | None] | None) -> None:
         self._info.route_func = val
 
     @property
-    def loaded_at(self):
+    def loaded_at(self) -> Any:
         return self._info.loaded_at
 
     @loaded_at.setter
-    def loaded_at(self, val):
+    def loaded_at(self, val: Any) -> None:
         self._info.loaded_at = val
 
     @property
@@ -123,7 +123,7 @@ class SkillInfo:
         return self._info.last_modified
 
     @last_modified.setter
-    def last_modified(self, val: float):
+    def last_modified(self, val: float) -> None:
         self._info.last_modified = val
 
     @property
@@ -131,7 +131,7 @@ class SkillInfo:
         return self._info.load_count
 
     @load_count.setter
-    def load_count(self, val: int):
+    def load_count(self, val: int) -> None:
         self._info.load_count = val
 
     @property
@@ -139,7 +139,7 @@ class SkillInfo:
         return self._info.error_count
 
     @error_count.setter
-    def error_count(self, val: int):
+    def error_count(self, val: int) -> None:
         self._info.error_count = val
 
     @property
@@ -147,7 +147,7 @@ class SkillInfo:
         return self._info.last_error
 
     @last_error.setter
-    def last_error(self, val: str | None):
+    def last_error(self, val: str | None) -> None:
         self._info.last_error = val
 
     @property
@@ -155,7 +155,7 @@ class SkillInfo:
         return self._info.is_active
 
     @is_active.setter
-    def is_active(self, val: bool):
+    def is_active(self, val: bool) -> None:
         self._info.is_active = val
 
     def to_dict(self) -> dict[str, Any]:
@@ -168,7 +168,7 @@ class SkillInfo:
 class SkillManager:
     """Hot-reload destekli skill yöneticisi (skill-engine library)."""
 
-    def __init__(self, auto_reload: bool = True, reload_interval: float = 3.0):
+    def __init__(self, auto_reload: bool = True, reload_interval: float = 3.0) -> None:
         self._callbacks: list[Callable[..., Any]] = []
         self._running = auto_reload  # for watcher test compatibility
         self._engine = SkillEngine(
@@ -225,24 +225,24 @@ class SkillManager:
             self._notify_callbacks("reload_failed", skill_id)
         return ok
 
-    def reload_all(self):
+    def reload_all(self) -> None:
         self._engine.reload_all()
 
-    def stop_watcher(self):
+    def stop_watcher(self) -> None:
         self._running = False
         self._engine.stop_watcher()
 
     @property
-    def _skills(self):
+    def _skills(self) -> dict[str, Any]:
         """Expose internal _skills dict for list_all_skills access."""
         return self._engine._skills
 
     # ── Callback Sistemi ─────────────────────────────────────────────
 
-    def on_reload(self, callback: Callable[..., Any]):
+    def on_reload(self, callback: Callable[..., Any]) -> None:
         self._callbacks.append(callback)
 
-    def _notify_callbacks(self, event: str, skill_id: str):
+    def _notify_callbacks(self, event: str, skill_id: str) -> None:
         for cb in self._callbacks:
             try:
                 cb(event, skill_id)
@@ -261,7 +261,7 @@ def get_skill_manager(auto_reload: bool = True, reload_interval: float = 3.0) ->
     return _skill_manager
 
 
-def reload_skill_manager():
+def reload_skill_manager() -> SkillManager:
     global _skill_manager
     if _skill_manager:
         _skill_manager.stop_watcher()

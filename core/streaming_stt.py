@@ -10,7 +10,7 @@ import threading
 import time
 from collections import deque
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 
 import numpy as np
 
@@ -48,7 +48,7 @@ class StreamingSTT:
         min_silence_duration_ms: int = 500,
         on_transcription: Optional[Callable[[str, bool], None]] = None,
         on_partial: Optional[Callable[[str], None]] = None,
-    ):
+    ) -> None:
         self.model_path = model_path
         self.device = device
         self.compute_type = compute_type
@@ -127,7 +127,7 @@ class StreamingSTT:
         print("[StreamingSTT] Streaming STT baslatildi")
         return True
 
-    def stop(self):
+    def stop(self) -> None:
         self._running = False
         if self._thread:
             self._thread.join(timeout=2.0)
@@ -135,7 +135,7 @@ class StreamingSTT:
 
     # ── Audio input ────────────────────────────────────────────────────────────
 
-    def feed_audio(self, audio_data: bytes):
+    def feed_audio(self, audio_data: bytes) -> None:
         """Feed PCM int16 audio chunk for transcription."""
         if not self._running:
             return
@@ -143,7 +143,7 @@ class StreamingSTT:
 
     # ── Transcription loop ─────────────────────────────────────────────────────
 
-    def _transcription_loop(self):
+    def _transcription_loop(self) -> None:
         while self._running:
             try:
                 audio_data = self._audio_queue.get(timeout=0.1)
@@ -156,14 +156,14 @@ class StreamingSTT:
                 print(f"[StreamingSTT] Transkripsiyon hatasi: {exc}")
                 traceback.print_exc()
 
-    def _process_audio_chunk(self, audio_data: bytes):
+    def _process_audio_chunk(self, audio_data: bytes) -> None:
         self._audio_buffer.extend(np.frombuffer(audio_data, dtype=np.int16))
         self._speech_buffer.extend(audio_data)
         buffer_duration = len(self._speech_buffer) / 2 / 16000
         if buffer_duration >= 1.0:
             self._transcribe_speech_buffer()
 
-    def _transcribe_speech_buffer(self):
+    def _transcribe_speech_buffer(self) -> None:
         if len(self._speech_buffer) < 3200:
             return
         try:
@@ -222,13 +222,10 @@ class StreamingSTT:
     def get_final_text(self) -> str:
         return self._final_text
 
-    def clear(self):
+    def clear(self) -> None:
         self._current_text = ""
-        self._final_text = ""
-        self._speech_buffer = bytearray()
-        self._audio_buffer.clear()
 
-    def get_stats(self) -> dict:
+    def get_stats(self) -> dict[str, Any]:
         return {
             "model_loaded": self._model_loaded,
             "running": self._running,
@@ -250,7 +247,7 @@ class RealtimeSTT:
         sample_rate: int = 16000,
         chunk_duration_ms: int = 100,
         on_text: Optional[Callable[[str], None]] = None,
-    ):
+    ) -> None:
         self.stt = StreamingSTT(
             model_path=model_path,
             on_transcription=self._on_transcription,
@@ -262,28 +259,28 @@ class RealtimeSTT:
         self._partial_text = ""
         self._final_text = ""
 
-    def _on_transcription(self, text: str, is_final: bool):
+    def _on_transcription(self, text: str, is_final: bool) -> None:
         self._final_text += " " + text if self._final_text else text
         self._partial_text = ""
         if is_final and self.on_text:
             self.on_text(self._final_text.strip())
 
-    def _on_partial(self, text: str):
+    def _on_partial(self, text: str) -> None:
         self._partial_text = text
 
     def start(self) -> bool:
         return self.stt.start()
 
-    def stop(self):
+    def stop(self) -> None:
         self.stt.stop()
 
-    def feed_chunk(self, audio_chunk: bytes):
+    def feed_chunk(self, audio_chunk: bytes) -> None:
         self.stt.feed_audio(audio_chunk)
 
     def get_text(self) -> str:
         return (self._final_text + " " + self._partial_text if self._partial_text else self._final_text).strip()
 
-    def clear(self):
+    def clear(self) -> None:
         self._final_text = ""
         self._partial_text = ""
         self.stt.clear()

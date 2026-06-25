@@ -55,7 +55,7 @@ class ProactiveVoice:
         self,
         voice: str = "piper-fahrettin",
         on_speak: Optional[Callable[[str], None]] = None,
-    ):
+    ) -> None:
         self.voice = voice
         self.on_speak = on_speak
 
@@ -67,7 +67,7 @@ class ProactiveVoice:
 
     # ── Lifecycle ────────────────────────────────────────────────────────────
 
-    def start(self):
+    def start(self) -> None:
         """Start proactive voice engine."""
         if self._running:
             return
@@ -76,7 +76,7 @@ class ProactiveVoice:
         self._thread.start()
         print("[ProactiveVoice] Proaktif ses motoru baslatildi")
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop proactive voice engine."""
         self._running = False
         if self._thread:
@@ -86,20 +86,20 @@ class ProactiveVoice:
 
     # ── Events ───────────────────────────────────────────────────────────────
 
-    def on_user_activated(self):
+    def on_user_activated(self) -> None:
         """User activated JARVIS (wake word / button)."""
         today = datetime.now().strftime("%Y-%m-%d")
         if self._last_greeting_date != today:
             self._last_greeting_date = today
             self._queue_greeting()
 
-    def on_idle(self, duration_seconds: float):
+    def on_idle(self, duration_seconds: float) -> None:
         """User has been idle for given duration."""
         if duration_seconds > 120 and self._queue.qsize() < 3:
             msg = random.choice(_DEFAULT_SUGGESTIONS)
             self._queue_message(msg)
 
-    def on_reminder(self, reminder_text: str):
+    def on_reminder(self, reminder_text: str) -> None:
         """Fire a reminder notification."""
         msg = f"Hatirlatici: {reminder_text}"
         self._queue_message(msg)
@@ -109,26 +109,26 @@ class ProactiveVoice:
         except Exception:
             pass
 
-    def on_custom(self, message: str):
+    def on_custom(self, message: str) -> None:
         """Queue a custom proactive message."""
         self._queue_message(message)
 
-    def set_user_active(self, active: bool):
+    def set_user_active(self, active: bool) -> None:
         """Set whether user is currently interacting."""
         self._user_active = active
 
     # ── Queue ────────────────────────────────────────────────────────────────
 
-    def _queue_greeting(self):
+    def _queue_greeting(self) -> None:
         msg = random.choice(_DEFAULT_GREETINGS)
         self._queue_message(msg)
 
-    def _queue_message(self, message: str):
+    def _queue_message(self, message: str) -> None:
         if not self._user_active:
             self._queue.put(message)
             print(f"[ProactiveVoice] Kuyruga eklendi: {message}")
 
-    def _worker_loop(self):
+    def _worker_loop(self) -> None:
         while self._running:
             try:
                 message = self._queue.get(timeout=1.0)
@@ -139,7 +139,7 @@ class ProactiveVoice:
             except Exception:
                 traceback.print_exc()
 
-    def _speak(self, message: str):
+    def _speak(self, message: str) -> None:
         """Speak the message using configured voice."""
         try:
             if self.on_speak:

@@ -159,7 +159,7 @@ class OllamaProvider(BaseProvider):
 
     MAX_STT_RESTARTS = 5
 
-    def __init__(self):
+    def __init__(self) -> None:
         """OllamaProvider baslatir."""
         super().__init__()
         self.input_queue: asyncio.Queue = asyncio.Queue()
@@ -440,7 +440,7 @@ class OllamaProvider(BaseProvider):
 
                 # LocalFunctionCall adapter → _execute_tool
                 class LocalFunctionCall:
-                    def __init__(self, name, args):
+                    def __init__(self, name, args) -> None:
                         """LocalFunctionCall baslatir."""
                         self.id = "local_call"
                         self.name = name

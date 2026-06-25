@@ -92,13 +92,13 @@ class EmotionTTS:
     Supports: piper, edge-tts, spd-say (same chain as actions.tts).
     """
 
-    def __init__(self, default_voice: str = "piper-fahrettin", default_emotion: str = "neutral"):
+    def __init__(self, default_voice: str = "piper-fahrettin", default_emotion: str = "neutral") -> None:
         self.voice = default_voice
         self._emotion = default_emotion
 
     # ── Emotion ───────────────────────────────────────────────────────────────
 
-    def set_emotion(self, emotion: str):
+    def set_emotion(self, emotion: str) -> None:
         emotion = emotion.lower().strip()
         if emotion in _EMOTION_PROFILES:
             self._emotion = emotion
@@ -109,12 +109,12 @@ class EmotionTTS:
     def get_emotion(self) -> str:
         return self._emotion
 
-    def set_voice(self, voice_id: str):
+    def set_voice(self, voice_id: str) -> None:
         self.voice = voice_id
 
     # ── Speaking ──────────────────────────────────────────────────────────────
 
-    def speak(self, text: str, emotion: Optional[str] = None, blocking: bool = False):
+    def speak(self, text: str, emotion: Optional[str] = None, blocking: bool = False) -> None:
         """Speak with emotion-modified voice."""
         emotion = emotion or self._emotion
         if emotion not in _EMOTION_PROFILES:
@@ -132,7 +132,7 @@ class EmotionTTS:
             print(f"[EmotionTTS] Konusma hatasi: {exc}")
             traceback.print_exc()
 
-    def _speak_piper_emotion(self, text: str, speed: float):
+    def _speak_piper_emotion(self, text: str, speed: float) -> None:
         """Piper TTS with speed modification."""
         try:
             _PIPER_FAHRETTIN_ONNX = BASE_DIR / "voice" / "Fahrettin-TTS" / "tr_TR-fahrettin-medium.onnx"
@@ -170,7 +170,7 @@ class EmotionTTS:
             except Exception:
                 traceback.print_exc()
 
-    def _speak_edge_emotion(self, text: str, speed: float, pitch: int, voice_id: str):
+    def _speak_edge_emotion(self, text: str, speed: float, pitch: int, voice_id: str) -> None:
         """Edge TTS with SSML prosody."""
         try:
             ssml = _generate_edge_ssml(text, speed, pitch)
@@ -203,7 +203,7 @@ class EmotionTTS:
             except Exception:
                 traceback.print_exc()
 
-    def _speak_spd_emotion(self, text: str, speed: float, pitch: int):
+    def _speak_spd_emotion(self, text: str, speed: float, pitch: int) -> None:
         """spd-say with rate/pitch modification."""
         try:
             cmd = ["spd-say", "-w", "-l", "tr"]
@@ -219,7 +219,7 @@ class EmotionTTS:
         important_parts: list[str],
         emotion: Optional[str] = None,
         blocking: bool = False,
-    ):
+    ) -> None:
         """
         Speak with emphasis on key phrases.
 

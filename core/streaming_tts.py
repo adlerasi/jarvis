@@ -9,7 +9,7 @@ import queue
 import re
 import threading
 import time
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 
 import traceback
 
@@ -61,11 +61,11 @@ def _split_sentences(text: str) -> list[str]:
 class TTSBuffer:
     """Thread-safe sentence queue for TTS."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._queue: queue.Queue = queue.Queue()
         self._cancel = threading.Event()
 
-    def put(self, sentence: str):
+    def put(self, sentence: str) -> None:
         self._queue.put(sentence)
 
     def get(self, timeout: float = 1.0) -> Optional[str]:
@@ -74,7 +74,7 @@ class TTSBuffer:
         except queue.Empty:
             return None
 
-    def cancel(self):
+    def cancel(self) -> None:
         self._cancel.set()
         # Drain queue
         while not self._queue.empty():
@@ -87,7 +87,7 @@ class TTSBuffer:
     def is_cancelled(self) -> bool:
         return self._cancel.is_set()
 
-    def reset(self):
+    def reset(self) -> None:
         self._cancel.clear()
         while not self._queue.empty():
             try:
@@ -106,13 +106,13 @@ class StreamingTTS:
     Allows conversational flow where speech starts before the full text is ready.
     """
 
-    def __init__(
+    def __init__(  # type: ignore[overload-overlap]
         self,
         voice: str = "piper-fahrettin",
         on_start: Optional[Callable] = None,
         on_done: Optional[Callable] = None,
         on_error: Optional[Callable[[Exception], None]] = None,
-    ):
+    ) -> None:
         self.voice = voice
         self.on_start = on_start
         self.on_done = on_done
@@ -127,7 +127,7 @@ class StreamingTTS:
 
     # ── Public API ────────────────────────────────────────────────────────────
 
-    def speak(self, text: str, blocking: bool = False):
+    def speak(self, text: str, blocking: bool = False) -> None:
         """Queue text for TTS playback."""
         if not text or not text.strip():
             self._fire_done()
@@ -135,7 +135,7 @@ class StreamingTTS:
         sentences = _split_sentences(text)
         self.speak_streaming(sentences, blocking)
 
-    def speak_streaming(self, sentences: list[str], blocking: bool = False):
+    def speak_streaming(self, sentences: list[str], blocking: bool = False) -> None:
         """Queue multiple sentences, playing each as available."""
         if not sentences:
             self._fire_done()
@@ -152,7 +152,7 @@ class StreamingTTS:
             while self._buffer.qsize() > 0 or self._current_sentence:
                 time.sleep(0.1)
 
-    def stop(self):
+    def stop(self) -> None:
         """Cancel current and queued speech."""
         self._buffer.cancel()
         self._current_sentence = None
@@ -161,19 +161,19 @@ class StreamingTTS:
             self._thread.join(timeout=1.0)
             self._thread = None
 
-    def pause(self):
+    def pause(self) -> None:
         self._paused.clear()
 
-    def resume(self):
+    def resume(self) -> None:
         self._paused.set()
 
     def is_speaking(self) -> bool:
         return self._running or self._buffer.qsize() > 0
 
-    def set_voice(self, voice_id: str):
+    def set_voice(self, voice_id: str) -> None:
         self.voice = voice_id
 
-    def get_stats(self) -> dict:
+    def get_stats(self) -> dict[str, Any]:
         return {
             "voice": self.voice,
             "running": self._running,
@@ -183,13 +183,13 @@ class StreamingTTS:
 
     # ── Internal ──────────────────────────────────────────────────────────────
 
-    def _start_worker(self):
+    def _start_worker(self) -> None:
         self._running = True
         self._buffer.reset()
         self._thread = threading.Thread(target=self._worker_loop, daemon=True)
         self._thread.start()
 
-    def _worker_loop(self):
+    def _worker_loop(self) -> None:
         try:
             if self.on_start:
                 self.on_start()
@@ -218,7 +218,7 @@ class StreamingTTS:
             if self._buffer.qsize() > 0 and not self._buffer.is_cancelled:
                 self._start_worker()
 
-    def _play_sentence(self, sentence: str):
+    def _play_sentence(self, sentence: str) -> None:
         """Play one sentence via existing TTS backend."""
         try:
             from actions.tts import speak_text
@@ -227,7 +227,7 @@ class StreamingTTS:
             print(f"[StreamingTTS] Oynatma hatasi: {exc}")
             traceback.print_exc()
 
-    def _fire_done(self):
+    def _fire_done(self) -> None:
         try:
             if self.on_done:
                 self.on_done()
