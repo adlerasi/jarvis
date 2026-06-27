@@ -54,8 +54,61 @@ from ui.orb_canvas import OrbCanvas
 
 # ─────────────────────────────────────────────────────────────────────────────
 
+class _HeadlessRoot:
+    """Dummy root for headless mode — replaces tk.Tk()."""
+    def __init__(self, shutdown_event: threading.Event):
+        self._shutdown_event = shutdown_event
+
+    def mainloop(self):
+        """Block until shutdown is signalled."""
+        try:
+            self._shutdown_event.wait()
+        except KeyboardInterrupt:
+            pass
+
+    def destroy(self):
+        """Signal shutdown."""
+        self._shutdown_event.set()
+
+    def __getattr__(self, _name):
+        """Swallow any other Tkinter calls (geometry, bind, after, etc.)."""
+        return _noop
+
+
+def _noop(*_args, **_kwargs):
+    pass
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+
 class JarvisUI:
-    def __init__(self):
+    def __init__(self, headless: bool = False):
+        self._headless = headless
+        if headless:
+            # ── Headless mode: no display, no Tkinter ──
+            self._shutdown_event = threading.Event()
+            self.root = _HeadlessRoot(self._shutdown_event)
+            self.speaking        = False
+            self.user_speaking   = False
+            self.muted           = False
+            self.paused          = False
+            self._jarvis_state   = "INITIALISING"
+            self._error_hold_until = 0.0
+            self._user_speaking_until = 0.0
+            self.is_typing       = False
+            self.typing_queue    = deque()
+            self._debug_entries  = deque(maxlen=160)
+            self.on_text_command = None
+            self.on_pause_toggle = None
+            self.on_stop_command = None
+            self.on_voice_change = None
+            self.on_effects_state_change = None
+            self.on_agent_approval = None
+            self.on_approval_mode_toggle = None
+            self.on_config_change = None
+            self._started_at = time.time()
+            return
+
         # ── Hardware check: display required for UI ──
         try:
             from core.hardware_detector import HardwareDetector
@@ -137,8 +190,14 @@ class JarvisUI:
         self._health_hide_job = None
         self._system_alert = ""
         self._system_alert_until = 0.0
+        try:
+            from actions.location import get_current_location
+            _init_city = get_current_location() or "Istanbul"
+            _init_city = _init_city.split(",")[0].strip()
+        except Exception:
+            _init_city = "Istanbul"
         self._weather_card = {
-            "city": "Istanbul",
+            "city": _init_city,
             "primary": "--",
             "details": ["Hava durumu yükleniyor..."],
         }
@@ -182,6 +241,13 @@ class JarvisUI:
         self.root.bind("<F10>", lambda e: self._on_config_change("max_steps", -5))
         self.root.bind("<Shift-F9>", lambda e: self._on_config_change("max_duration", 30))
         self.root.bind("<Shift-F10>", lambda e: self._on_config_change("max_duration", -30))
+
+        # ── Faz 6 panel shortcuts ────────────────────────────
+        self.root.bind("<Control-d>", lambda e: self._toggle_panel("dashboard"))
+        self.root.bind("<Control-h>", lambda e: self._toggle_panel("chat_history"))
+        self.root.bind("<Control-n>", lambda e: self._toggle_panel("notification"))
+        self.root.bind("<F2>", lambda e: self._toggle_panel("dashboard"))
+        self.root.bind("<F3>", lambda e: self._toggle_panel("chat_history"))
 
         # ── Voice ────────────────────────────────────────────────────────────
         self._current_voice = self._load_voice()
@@ -227,6 +293,20 @@ class JarvisUI:
             }
             for _ in range(160)
         ]
+
+        # ── Faz 6: Modern UI Panels (hidden by default) ───────
+        self._panels_visible = {
+            "dashboard": False,
+            "chat_history": False,
+            "notification": False,
+        }
+        self._dashboard_frame = None
+        self._chat_history_frame = None
+        self._notification_frame = None
+        self._dashboard_widget = None
+        self._chat_widget = None
+        self._notification_widget = None
+
         self.orb_shell_particles = [
             {
                 'angle': random.uniform(0, math.tau),
@@ -315,6 +395,12 @@ class JarvisUI:
         self.root.update_idletasks()
 
     def safe_call(self, func, *args, **kwargs):
+        if getattr(self, '_headless', False):
+            try:
+                return func(*args, **kwargs)
+            except Exception:
+                traceback.print_exc()
+                return None
         """Thread-safe UI call. Main thread'de direkt çalışır, bg thread'de queue'ya ekler."""
         if threading.current_thread() is threading.main_thread():
             try:
@@ -412,6 +498,82 @@ class JarvisUI:
             yt_lbl = tk.Label(bar, image=self._icon_yt, bg=C_BG, cursor="hand2")
             yt_lbl.pack(side="left", padx=4)
             yt_lbl.bind("<Button-1>", _open("https://www.instagram.com/adler_asi/?hl=tr"))
+
+
+    # ── Faz 6: Modern UI Panels ──────────────────────────────────────────────
+
+    def _lazy_init_panel(self, name: str):
+        """Create panel widget on first use."""
+        if name == "dashboard" and self._dashboard_frame is None:
+            try:
+                from ui.dashboard import Dashboard
+                pw, ph = 360, min(520, self.H - 120)
+                frame = tk.Frame(self.root, bg=C_BG, highlightbackground=C_MID, highlightthickness=1)
+                frame.place(x=self.W - pw - 14, y=80, width=pw, height=ph)
+                widget = Dashboard(frame)
+                widget.pack(fill="both", expand=True)
+                self._dashboard_frame = frame
+                self._dashboard_widget = widget
+            except Exception:
+                pass
+
+        elif name == "chat_history" and self._chat_history_frame is None:
+            try:
+                from ui.chat_history import ChatHistory
+                pw, ph = 400, min(520, self.H - 120)
+                frame = tk.Frame(self.root, bg=C_BG, highlightbackground=C_MID, highlightthickness=1)
+                frame.place(x=14, y=80, width=pw, height=ph)
+                widget = ChatHistory(frame)
+                widget.pack(fill="both", expand=True)
+
+                # Load current transcript if available
+                try:
+                    from memory.conversation_transcript import ConversationTranscript
+                    ct = ConversationTranscript()
+                    turns = ct.get_recent(50)
+                    if turns:
+                        widget.load_from_transcript(turns)
+                except Exception:
+                    pass
+
+                self._chat_history_frame = frame
+                self._chat_widget = widget
+            except Exception:
+                pass
+
+        elif name == "notification" and self._notification_frame is None:
+            try:
+                from ui.notification_panel import NotificationPanel
+                pw, ph = 340, min(480, self.H - 120)
+                frame = tk.Frame(self.root, bg=C_BG, highlightbackground=C_MID, highlightthickness=1)
+                frame.place(x=14, y=80, width=pw, height=ph)
+                widget = NotificationPanel(frame)
+                widget.pack(fill="both", expand=True)
+                self._notification_frame = frame
+                self._notification_widget = widget
+            except Exception:
+                pass
+
+    def _toggle_panel(self, name: str):
+        """Toggle panel visibility."""
+        visible = self._panels_visible.get(name, False)
+        if visible:
+            # Hide
+            frame = getattr(self, f"_{name}_frame", None)
+            if frame:
+                frame.place_forget()
+            self._panels_visible[name] = False
+        else:
+            # Show (lazy init on first show)
+            self._lazy_init_panel(name)
+            frame = getattr(self, f"_{name}_frame", None)
+            if frame:
+                pw = {"dashboard": 360, "chat_history": 400, "notification": 340}.get(name, 360)
+                ph = min(520, self.H - 120)
+                x = self.W - pw - 14 if name == "dashboard" else 14
+                frame.place(x=x, y=80, width=pw, height=ph)
+                frame.lift()
+            self._panels_visible[name] = True
 
     # ── Voice ─────────────────────────────────────────────────────────────────
     def _load_voice(self) -> str:
@@ -863,6 +1025,9 @@ class JarvisUI:
                 traceback.print_exc()
 
     def destroy(self):
+        if getattr(self, '_headless', False):
+            self.root.destroy()
+            return
         self.sound.stop_all()
         try:
             self.root.destroy()
@@ -994,6 +1159,8 @@ class JarvisUI:
         previous = getattr(self, "_jarvis_state", "")
         self._jarvis_state = state
         self.speaking = (state == "SPEAKING")
+        if getattr(self, '_headless', False):
+            return
         if hasattr(self, "_orb") and self._orb:
             self._orb.set_state(state)
         if state == "THINKING":
@@ -1010,6 +1177,9 @@ class JarvisUI:
         self.mark_user_activity(value)
 
     def mark_user_activity(self, active: bool = True):
+        if getattr(self, '_headless', False):
+            self.user_speaking = active
+            return
         if threading.current_thread() is not threading.main_thread():
             self.safe_call(self.mark_user_activity, active)
             return
@@ -1084,6 +1254,8 @@ class JarvisUI:
             self.agent_confidence = steps[self.agent_active_step].get("confidence", 0.0)
 
     def focus_panel(self, section: str, duration_ms: int = 4200):
+        if getattr(self, '_headless', False):
+            return
         if threading.current_thread() is not threading.main_thread():
             self.safe_call(self.focus_panel, section, duration_ms)
             return
@@ -1111,6 +1283,10 @@ class JarvisUI:
     def write_log(self, text: str):
         if threading.current_thread() is not threading.main_thread():
             self.safe_call(self.write_log, text)
+            return
+        if getattr(self, '_headless', False):
+            ts = time.strftime("%H:%M:%S")
+            print(f"[{ts}] {text}")
             return
         self.typing_queue.append(text)
         tl = text.lower()
@@ -1268,9 +1444,8 @@ class JarvisUI:
     def _refresh_brief_cards(self):
         city = "Istanbul"
         try:
-            from memory.memory_manager import load_memory
-            mem = load_memory()
-            city = (mem.get("preferences", {}).get("weather_location", {})).get("value") or "Istanbul"
+            from actions.location import get_current_location
+            city = get_current_location() or city
             weather = get_weather_summary(city)
             self._weather_card = self._parse_weather_card(weather)
         except Exception:

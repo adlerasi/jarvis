@@ -8,6 +8,7 @@ Adler ASİ tarafından yapılmıştır
 """
 
 import sys
+import argparse
 import logging
 import traceback
 import threading
@@ -336,6 +337,79 @@ class JarvisLive:
             traceback.print_exc()
             self.agent_manager = None
 
+        # ── Faz 3: Empati ve Kisilik ──
+        try:
+            from core.empathy_engine import create_empathy_engine
+            self.empathy_engine = create_empathy_engine()
+        except Exception:
+            self.empathy_engine = None
+
+        try:
+            from core.personality_adapter import PersonalityAdapter
+            self.personality = PersonalityAdapter()
+        except Exception:
+            self.personality = None
+
+        # ── Faz 4: Aliskanlik, Bildirim, Anomali ──
+        try:
+            from core.habit_learner import create_habit_learner
+            self.habit_learner = create_habit_learner()
+        except Exception:
+            self.habit_learner = None
+
+        try:
+            from core.notification_manager import create_notification_manager
+            self.notifier = create_notification_manager()
+        except Exception:
+            self.notifier = None
+
+        try:
+            from core.anomaly_responder import create_anomaly_responder
+            self.anomaly = create_anomaly_responder()
+        except Exception:
+            self.anomaly = None
+
+        # ── Faz 7: Learning Engine (4 katmanli bellek) ──
+        try:
+            from core.learning_engine import create_learning_engine
+            self.learning_engine = create_learning_engine()
+        except Exception:
+            self.learning_engine = None
+
+        # ── Faz 5: Multi-Agent Swarm ──
+        try:
+            from core.agent_framework.agent_bus import AgentBus
+            self.agent_bus = AgentBus()
+        except Exception:
+            self.agent_bus = None
+
+        try:
+            from core.agent_framework.agent_registry import AgentRegistry
+            self.agent_registry = AgentRegistry()
+        except Exception:
+            self.agent_registry = None
+
+        self._register_phase5_agents()
+
+    def _register_phase5_agents(self):
+        """Register Phase 5 specialised agents (no-arg constructors)."""
+        registry = getattr(self, "agent_registry", None)
+        if registry is None:
+            return
+        agent_classes = [
+            "BrowserAgent", "CodeAgent", "SystemAgent",
+            "VisionAgent", "MemoryAgent",
+        ]
+        for cls_name in agent_classes:
+            try:
+                mod_name = cls_name.replace("Agent", "_agent").lower()
+                mod = __import__(f"agents.{mod_name}", fromlist=[cls_name])
+                cls = getattr(mod, cls_name, None)
+                if cls is not None:
+                    registry.register(cls())
+            except Exception:
+                pass
+
     def _speak_proactive(self, text: str):
         self.set_speaking(True)
         try:
@@ -378,8 +452,10 @@ class JarvisLive:
                 speak_text(skill_result, blocking=False)
             except Exception:
                 pass
+            self._log_user_action("voice_command", text)
             return
 
+        self._log_user_action("voice_command", text)
         if self._provider is not None:
             asyncio.run_coroutine_threadsafe(
                 self._provider.send_text(text),
@@ -414,6 +490,25 @@ class JarvisLive:
                 self.thinking_aloud.stop()
             except Exception:
                 pass
+
+        # ── Faz 3: Empati ve Kisilik ──
+        empathy = getattr(self, "empathy_engine", None)
+        if empathy is not None:
+            try:
+                emotion_scores = empathy.analyze_text_keywords(response_text)
+                emotion_tag = empathy.get_emotion_tag(emotion_scores)
+                if emotion_tag:
+                    response_text = f"[{emotion_tag}] {response_text}"
+            except Exception:
+                pass
+
+        personality = getattr(self, "personality", None)
+        if personality is not None and hasattr(self, "_last_user_text"):
+            try:
+                personality.analyze_text(self._last_user_text)
+            except Exception:
+                pass
+
         if hasattr(self, "transcript") and self.transcript:
             try:
                 last_user = self._last_user_text if hasattr(self, "_last_user_text") else ""
@@ -423,6 +518,15 @@ class JarvisLive:
         if hasattr(self, "voice_memory") and self.voice_memory:
             try:
                 self.voice_memory.log_jarvis(response_text)
+            except Exception:
+                pass
+        learn = getattr(self, "learning_engine", None)
+        if learn is not None:
+            try:
+                last_user = self._last_user_text if hasattr(self, "_last_user_text") else ""
+                learn.learn_from_conversation([
+                    {"user": last_user, "jarvis": response_text[:500]}
+                ])
             except Exception:
                 pass
         self.set_speaking(True)
@@ -474,6 +578,21 @@ class JarvisLive:
         }:
             self.ui.focus_panel("system", duration_ms=8000)
 
+    def _log_user_action(self, action_type: str, text: str):
+        """Log user action to habit learner and learning engine."""
+        habit = getattr(self, "habit_learner", None)
+        if habit is not None:
+            try:
+                habit.log_action(action_type, {"text": text[:200]})
+            except Exception:
+                pass
+        learn = getattr(self, "learning_engine", None)
+        if learn is not None:
+            try:
+                learn.process_interaction(user_text=text[:500])
+            except Exception:
+                pass
+
     def _on_text_command(self, text: str):
         if self._paused:
             return
@@ -484,9 +603,11 @@ class JarvisLive:
         skill_result = self.skill_manager.route(text)
         if skill_result is not None:
             self.ui.write_log(f"JARVIS: {skill_result}")
+            self._log_user_action("text_command", text)
             return
 
         self.ui.write_log(f"Siz: {text}")
+        self._log_user_action("text_command", text)
         if self._provider is not None:
             asyncio.run_coroutine_threadsafe(
                 self._provider.send_text(text),
@@ -532,17 +653,36 @@ class JarvisLive:
             if hasattr(self, "barge_in") and self.barge_in:
                 self.barge_in.set_jarvis_speaking(False)
 
+    async def _periodic_anomaly_check(self):
+        """Periodic system health check — record metrics, detect anomalies, notify UI."""
+        anomaly = getattr(self, "anomaly", None)
+        notifier = getattr(self, "notifier", None)
+        try:
+            import psutil
+            while not self._shutdown_event.is_set():
+                await asyncio.sleep(300)
+                cpu = psutil.cpu_percent(interval=1)
+                mem = psutil.virtual_memory().percent
+                disk = psutil.disk_usage("/").percent
+                if anomaly is not None:
+                    anomaly.record("cpu_percent", cpu)
+                    anomaly.record("memory_percent", mem)
+                    anomaly.record("disk_percent", disk)
+                anomaly_alerts = []
+                if notifier is not None:
+                    anomaly_alerts = notifier.check_system(
+                        cpu_percent=cpu, memory_percent=mem, disk_percent=disk
+                    )
+                for aid in anomaly_alerts:
+                    self.ui.safe_call(self.ui.write_log, f"[SISTEM] Uyari #{aid}")
+        except Exception:
+            pass
+
     def shutdown(self):
         """Signal shutdown, stop provider, clean up resources."""
         self._shutdown_event.set()
-        # Stop audio / provider resources
-        if self._provider is not None:
-            try:
-                if hasattr(self._provider, "stop"):
-                    self._provider.stop()
-            except Exception:
-                pass
-            self._provider = None
+        # Provider cleanup handled by run() finally block (async safe)
+        self._provider = None
         # Stop streaming STT
         if self.streaming_stt_engine is not None:
             try:
@@ -599,7 +739,7 @@ class JarvisLive:
             response={"result": result}
         )
 
-    async def _execute_tool(self, fc) -> "FunctionResponse":
+    async def _execute_tool(self, fc):
         name = fc.name
         args = dict(fc.args or {})
         print(f"[JARVIS] 🔧 {name} {args}")
@@ -650,6 +790,9 @@ class JarvisLive:
         from core.ollama_provider import OllamaProvider
 
         self._loop = asyncio.get_event_loop()
+
+        # Start periodic anomaly health check (Phase 4)
+        anomaly_task = asyncio.create_task(self._periodic_anomaly_check())
 
         while not self._shutdown_event.is_set():
             if self._paused:
@@ -1108,24 +1251,43 @@ def _run_async(app: JarvisLive) -> None:
 
 
 def main():
+    parser = argparse.ArgumentParser(description="JARVIS Voice Assistant")
+    parser.add_argument("--headless", action="store_true",
+                        help="Run without display (CLI mode, no Tkinter UI)")
+    args = parser.parse_args()
+    headless = args.headless
+
     if os.environ.get("TERM_PROGRAM") == "vscode":
         print("[JARVIS] VS Code icinden baslatildi.")
 
-    # ── Hardware detection at startup ──
+    # ── Hardware detection + activation at startup ──
     try:
-        from core.hardware_detector import HardwareDetector
-        hw = HardwareDetector.detect_all()
+        from core.hardware_manager import initialize_hardware
+        hw_mgr = initialize_hardware(auto_activate=True)
         print("[JARVIS] ── Hardware Report ──")
-        for line in hw.summary().split("\n"):
-            print(f"  {line}")
+        print(hw_mgr.summary())
         print("[JARVIS] ── ── ── ── ── ── ──")
-        if not hw.success() and hw.audio_input.status != "ok":
+        if not hw_mgr.is_audio_ready():
             print("[JARVIS] ⚠️  No microphone detected — voice input disabled.")
-        if hw.display.status != "ok":
-            print(f"[JARVIS] ⚠️  No display — {hw.display.detail}")
-            print("[JARVIS] Tip: Run with --headless (web_ui.py archived to scripts/archive/)")
-    except ImportError:
-        print("[JARVIS] HardwareDetector not available, skipping.")
+        if not hw_mgr.is_display_ready():
+            state = hw_mgr.get_state()
+            print(f"[JARVIS] ⚠️  No display — {state.detection.display.detail}")
+            if not headless:
+                print("[JARVIS] Tip: Run with --headless (CLI mode)")
+                print("[JARVIS] Kapatiliyor...")
+                return
+        if headless:
+            print("[JARVIS] --headless mode active: display check skipped, CLI only.")
+        # Start background health monitoring
+        hw_mgr.start_monitoring(interval_s=60.0)
+    except ImportError as e:
+        print(f"[JARVIS] HardwareManager not available: {e}")
+    except Exception as e:
+        print(f"[JARVIS] Hardware init failed: {e}")
+        if not headless:
+            # In GUI mode, hardware failure is fatal
+            print("[JARVIS] Kapatiliyor...")
+            return
 
     try:
         from core.notification import notify
@@ -1133,7 +1295,7 @@ def main():
     except Exception:
         pass
 
-    ui = JarvisUI()
+    ui = JarvisUI(headless=headless)
     app = JarvisLive(ui)
 
     # ── asyncio event loop in background thread ──
@@ -1148,8 +1310,8 @@ def main():
     async_thread.start()
 
     try:
-        # Tkinter mainloop in MAIN thread — processes UI events, after() callbacks,
-        # user input, and canvas redraws. Blocks until the window is closed.
+        # In GUI mode, Tkinter mainloop processes UI events.
+        # In headless mode, _HeadlessRoot.mainloop() blocks on shutdown_event.
         ui.root.mainloop()
     except KeyboardInterrupt:
         print("\n[JARVIS] Kapatiliyor...")
