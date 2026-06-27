@@ -790,6 +790,11 @@ class JarvisUI:
         self._settings_status_secondary.configure(text=secondary)
 
     def write_debug(self, text: str, level: str = "INFO"):
+        if getattr(self, '_headless', False):
+            clean = " ".join(str(text or "").split())
+            if clean:
+                print(f"[DEBUG][{level}] {clean}")
+            return
         if threading.current_thread() is not threading.main_thread():
             self.safe_call(self.write_debug, text, level)
             return
@@ -1187,18 +1192,26 @@ class JarvisUI:
         self._user_speaking_until = time.time() + (0.9 if active else 0.0)
 
     def get_effects_volume(self) -> float:
+        if getattr(self, '_headless', False):
+            return 0.0
         return self.sound.get_volume()
 
     def effects_enabled(self) -> bool:
+        if getattr(self, '_headless', False):
+            return False
         return bool(self._effects_active)
 
     def play_success_sfx(self):
+        if getattr(self, '_headless', False):
+            return
         if threading.current_thread() is not threading.main_thread():
             self.safe_call(self.play_success_sfx)
             return
         self.sound.play_success()
 
     def play_error_sfx(self):
+        if getattr(self, '_headless', False):
+            return
         if threading.current_thread() is not threading.main_thread():
             self.safe_call(self.play_error_sfx)
             return
