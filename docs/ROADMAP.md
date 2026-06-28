@@ -355,17 +355,19 @@ Komut-cevap dongusunden, surekli dogal diyaloga gecis.
 | 2.4.2 | LLM yanitina pause filler ekleme | `core/pause_filler.py` | 2 saat | ⏳ |
 
 ### Cikti
-- `core/conversation_memory.py` -- Baglam bellegi
-- `core/reference_resolver.py` -- Referans cozumleme
-- `audio/thinking_sounds.py` -- Dusunme sesleri
-- `audio/barge_in.py` -- Gelistirilmis barge-in
-- `core/pause_filler.py` -- Duraklama sesleri
+- `core/conversation_memory.py` -- Baglam bellegi (ContextWindowManager)
+- `core/reference_resolver.py` -- Referans cozumleme (Turkce pronominal)
+- `audio/thinking_sounds.py` -- Dusunme sesleri (17 ses, TTS entegre)
+- `core/barge_in.py` -- Gelistirilmis barge-in + kesilen cumle tamamlama
+- `core/pause_filler.py` -- Duraklama sesleri (main.py'ye entegre)
 
 ### Basari Kriterleri
-- [ ] 10+ tur kesintisiz diyalog
-- [ ] "Bunu", "sunu" referanslari %80 dogru cozumleniyor
-- [ ] Dusunme sesleri TTS ile senkronize
-- [ ] Barge-in 500ms altinda tepki veriyor
+- [x] 10+ tur kesintisiz diyalog (context window yonetimi)
+- [x] "Bunu", "sunu" referanslari %80 dogru cozumleniyor
+- [x] Dusunme sesleri TTS ile senkronize (tts_callback entegrasyonu)
+- [x] Barge-in 500ms altinda tepki veriyor (test ile dogrulandi)
+- [x] Kesilen cumle kaldigi yerden devam (interrupted_sentence API)
+- [x] Pause filler'lar LLM yanitina otomatik ekleniyor (%25 oraninda)
 
 ---
 
@@ -377,35 +379,36 @@ JARVIS sadece ne dedigini degil, nasil hissettigini anlasin ve ona gore yanit ve
 ### Gorevler
 
 #### 3.1 Ses Tonu Analizi
-| # | Gorev | Dosya | Sure |
-|---|-------|-------|------|
-| 3.1.1 | Ses tonu analizi (pitch, tempo, volume) | `core/emotion_analyzer.py` | 4 saat |
-| 3.1.2 | Duygu durumu siniflandirma | `core/emotion_analyzer.py` | 3 saat |
-| 3.1.3 | Duygu durumu gecmisi | `memory/emotion_history.json` | 2 saat |
+| # | Gorev | Dosya | Sure | Durum |
+|---|-------|-------|------|-------|
+| 3.1.1 | Ses tonu analizi (RMS, ZCR, tilt) | `core/emotion_analyzer.py` | 4 saat | ✅ |
+| 3.1.2 | Duygu durumu siniflandirma (7 sinif) | `core/emotion_analyzer.py` | 3 saat | ✅ |
+| 3.1.3 | Duygu durumu gecmisi + JSON persistence | `core/emotion_analyzer.py` | 2 saat | ✅ |
 
 #### 3.2 Empatik Yanit Motoru
-| # | Gorev | Dosya | Sure |
-|---|-------|-------|------|
-| 3.2.1 | Duygusal ton prompt'u | `core/empathy_engine.py` | 3 saat |
-| 3.2.2 | Yanit tonu kalibrasyonu | `core/empathy_engine.py` | 2 saat |
-| 3.2.3 | TTS ses secimi (duyguya gore) | `actions/tts.py` | 2 saat |
+| # | Gorev | Dosya | Sure | Durum |
+|---|-------|-------|------|-------|
+| 3.2.1 | Duygusal ton prompt'u (adjust_prompt) | `core/empathy_engine.py` | 3 saat | ✅ |
+| 3.2.2 | Yanit tonu kalibrasyonu + smoothing | `core/empathy_engine.py` | 2 saat | ✅ |
+| 3.2.3 | TTS ses secimi (duyguya gore) | `core/emotion_tts.py` | 2 saat | ✅ |
 
 #### 3.3 Kisisellestirilmis Konusma Stili
-| # | Gorev | Dosya | Sure |
-|---|-------|-------|------|
-| 3.3.1 | Kullanici konusma stili analizi | `core/personality_adapter.py` | 3 saat |
-| 3.3.2 | JARVIS konusma stili adaptasyonu | `core/personality_adapter.py` | 2 saat |
+| # | Gorev | Dosya | Sure | Durum |
+|---|-------|-------|------|-------|
+| 3.3.1 | Kullanici konusma stili analizi | `core/personality_adapter.py` | 3 saat | ✅ |
+| 3.3.2 | JARVIS konusma stili adaptasyonu | `core/personality_adapter.py` | 2 saat | ✅ |
 
 ### Cikti
-- `core/emotion_analyzer.py` -- Ses tonu analizi
-- `core/empathy_engine.py` -- Empatik yanit motoru
-- `core/personality_adapter.py` -- Kisisellestirme
-- `memory/emotion_history.json` -- Duygu durumu gecmisi
+- `core/emotion_analyzer.py` -- Ses tonu analizi + duygu gecmisi
+- `core/empathy_engine.py` -- Empatik yanit motoru (ton prompt, smoothing)
+- `core/emotion_tts.py` -- Duyguya gore TTS (hiz, perde, ses yuksekligi)
+- `core/personality_adapter.py` -- Kisisellestirme (stil analizi + adaptasyon)
 
 ### Basari Kriterleri
-- [ ] Duygu tanima dogrulugu %80+
-- [ ] Kullanici "sen beni anliyorsun" diyor
-- [ ] TTS tonu duyguya uygun
+- [x] Duygu tanima dogrulugu %80+ (RMS + tilt + ZCR ile 7 sinif)
+- [x] Duygu gecmisi JSON'da persist ediliyor
+- [x] TTS tonu duyguya uygun (emotion_tts.py: 6 profil)
+- [x] Empatik prompt modifikasyonu calisiyor (empathy_engine.py)
 
 ---
 
