@@ -322,6 +322,8 @@ class JarvisUI:
         self.bg = tk.Canvas(self.root, width=self.W, height=self.H,
                             bg=C_BG, highlightthickness=0)
         self.bg.place(x=0, y=0)
+        # Pre-create static background layer (grid, header, footer)
+        self._static_initialized = False
 
         # ── 3D Orb ───────────────────────────────────────────────────────────
         self._orb = OrbCanvas(self.root, size=self.FACE)
@@ -1459,6 +1461,7 @@ class JarvisUI:
         try:
             from actions.location import get_current_location
             city = get_current_location() or city
+            city = city.split(",")[0].strip()
             weather = get_weather_summary(city)
             self._weather_card = self._parse_weather_card(weather)
         except Exception:
@@ -1922,31 +1925,50 @@ class JarvisUI:
         pass
 
     # ── Ana çizim ─────────────────────────────────────────────────────────────
-    def _draw(self):
-        c  = self.bg
-        W  = self.W
-        H  = self.H
-        t  = self.tick
-        c.delete("all")
+    def _init_static_ui(self):
+        """Create static background items once (grid, header, footer, dividers)."""
+        c = self.bg
+        W, H = self.W, self.H
 
-        # ── Arka plan ────────────────────────────────────────────────────────
-        # Nokta ızgarası — çok ince
         step = 48
         for x in range(0, W, step):
             for y in range(0, H, step):
                 c.create_rectangle(x, y, x+1, y+1, fill=C_DIMMER, outline="")
 
-        # Tarama çizgisi (yavaş, çok soluk)
-        scan_y = (t * 0.7) % (H + 60) - 30
-        for i in range(2):
-            ly = (scan_y + i * 20) % H
-            c.create_line(0, ly, W, ly+35, fill="#081818", width=1)
+        c.create_rectangle(0, 0, W, HDR_H, fill="#010a0a", outline="")
+        c.create_line(0, HDR_H, W, HDR_H, fill=C_MID, width=1)
+        for i in range(3):
+            a = 60 - i * 18
+            c.create_line(0, HDR_H-1-i, W, HDR_H-1-i,
+                          fill=self._ac(0, 180, 165, a), width=1)
 
-        # ── Bölücü çizgiler (ince, soluk) ────────────────────────────────────
+        c.create_rectangle(0, H-FOOTER_H, W, H, fill="#010a0a", outline="")
+        c.create_line(0, H-FOOTER_H, W, H-FOOTER_H, fill=C_DIM, width=1)
+
         c.create_line(self.LEFT_W, HDR_H, self.LEFT_W, H-FOOTER_H,
                       fill=C_DIM, width=1)
         c.create_line(W-self.RIGHT_W, HDR_H, W-self.RIGHT_W, H-FOOTER_H,
                       fill=C_DIM, width=1)
+
+        self._static_initialized = True
+
+    def _draw(self):
+        c  = self.bg
+        W  = self.W
+        H  = self.H
+        t  = self.tick
+        c.delete("_dynamic")
+
+        # Static layer (created once, avoid ~500 recreate per frame)
+        if not self._static_initialized:
+            self._init_static_ui()
+        n_static = len(c.find_all())
+
+        # Tarama çizgisi (dinamik)
+        scan_y = (t * 0.7) % (H + 60) - 30
+        for i in range(2):
+            ly = (scan_y + i * 20) % H
+            c.create_line(0, ly, W, ly+35, fill="#081818", width=1)
 
         # ── Yan paneller ──────────────────────────────────────────────────────
         self._draw_left_panel(c)
@@ -1965,15 +1987,7 @@ class JarvisUI:
         c.create_text(self.FCX, self.CTRL_Y - 12, text=f"● {state_label.title()}",
                       fill=state_col, font=font_body_bold(11))
 
-        # ── HEADER ───────────────────────────────────────────────────────────
-        c.create_rectangle(0, 0, W, HDR_H, fill="#010a0a", outline="")
-        # Alt çizgi — teal parlak
-        c.create_line(0, HDR_H, W, HDR_H, fill=C_MID, width=1)
-        for i in range(3):
-            a = 60 - i * 18
-            c.create_line(0, HDR_H-1-i, W, HDR_H-1-i,
-                          fill=self._ac(0, 180, 165, a), width=1)
-
+        # ── HEADER (background lines in _init_static_ui, only dynamic text here) ──
         # Sistem uyarısı (header altında)
         self._draw_system_alert(c)
 
@@ -1995,12 +2009,15 @@ class JarvisUI:
         c.create_text(W-22, 36, text=f"{sym}  {indicator_text}",
                       fill=ind_col, font=font_body_bold(11), anchor="e")
 
-        # ── FOOTER ───────────────────────────────────────────────────────────
-        c.create_rectangle(0, H-FOOTER_H, W, H, fill="#010a0a", outline="")
-        c.create_line(0, H-FOOTER_H, W, H-FOOTER_H, fill=C_DIM, width=1)
+        # ── FOOTER (background in _init_static_ui, text here) ──
         c.create_text(W//2, H-13, fill=C_DIM, font=font_body(9),
                       text="JARVIS · Windows Edition · Realtime Voice Core")
         c.create_text(W-18, H-13, fill=C_DIM, font=font_body(9),
                       text="[F4] MUTE  [F5] PAUSE  [ESC] EXIT", anchor="e")
+
+        # Auto-tag all newly created items as _dynamic (for next frame cleanup)
+        all_items = c.find_all()
+        for item_id in all_items[n_static:]:
+            c.addtag("_dynamic", "withtag", item_id)
 
     # ── (Setup dialog extracted to ui/setup_dialog.py) ─────────────────────
