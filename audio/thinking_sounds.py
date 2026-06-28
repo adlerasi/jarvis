@@ -5,14 +5,15 @@ the interaction feel more natural and human-like.
 
 Usage:
     ts = ThinkingSounds()
-    ts.speak("Hmm...")  # tts via jarvis
-    sound = ts.select(delay_ms=2000)  # auto-select based on delay
+    ts.speak("Hmm...")  # tts via speak_text callback
+    sound = ts.select(delay_ms=2000)
 """
 
 from __future__ import annotations
 
 import random
-from typing import Optional
+import threading
+from typing import Callable, Optional
 
 _THINKING_SOUNDS: dict[str, list[str]] = {
     "neutral": [
@@ -46,7 +47,6 @@ _THINKING_SOUNDS: dict[str, list[str]] = {
     ],
 }
 
-# Thresholds in ms for sound selection
 _SHORT_DELAY_MS = 1500
 _LONG_DELAY_MS = 4000
 
@@ -55,11 +55,22 @@ class ThinkingSounds:
     """Vocal delay filler library for natural conversation flow.
 
     Selects and optionally plays sounds based on estimated
-    LLM processing delay.
+    LLM processing delay. Connects to TTS via a callable.
+
+    Args:
+        sounds: Custom sound dictionary (keys = categories).
+        tts_callback: Callable(text: str) -> None for TTS playback.
+            If None, speak() is a no-op.
     """
 
-    def __init__(self, sounds: Optional[dict[str, list[str]]] = None):
+    def __init__(
+        self,
+        sounds: Optional[dict[str, list[str]]] = None,
+        tts_callback: Optional[Callable[[str], None]] = None,
+    ):
         self._sounds = sounds or _THINKING_SOUNDS
+        self._tts_callback = tts_callback
+        self._speaking = False
 
     # ── Selection ────────────────────────────────────────────
 
@@ -78,11 +89,9 @@ class ThinkingSounds:
             return ""
 
         if delay_ms < _SHORT_DELAY_MS:
-            # Short delay — use a minimal filler
             candidates = [s for s in sounds if len(s) < 15]
             return random.choice(candidates) if candidates else random.choice(sounds)
         elif delay_ms > _LONG_DELAY_MS:
-            # Long delay — use a multi-part filler or excited/concerned
             candidates = [s for s in sounds if len(s) >= 15]
             return random.choice(candidates) if candidates else random.choice(sounds)
         else:
@@ -96,3 +105,39 @@ class ThinkingSounds:
     def count(self) -> int:
         """Total number of registered sounds."""
         return sum(len(v) for v in self._sounds.values())
+
+    # ── TTS Integration ──────────────────────────────────────
+
+    def speak(self, text: str) -> bool:
+        """Speak a thinking sound via TTS callback.
+
+        Returns True if the sound will be played.
+        Non-blocking — spawns a daemon thread for TTS.
+        """
+        if not text or not self._tts_callback:
+            return False
+
+        def _play():
+            self._speaking = True
+            try:
+                self._tts_callback(text)
+            finally:
+                self._speaking = False
+
+        threading.Thread(target=_play, daemon=True).start()
+        return True
+
+    def play_delayed(self, delay_ms: float, category: str = "neutral") -> str:
+        """Select and play a thinking sound based on delay.
+
+        Returns the text that was (or would be) spoken.
+        """
+        text = self.select(delay_ms, category)
+        if text:
+            self.speak(text)
+        return text
+
+    @property
+    def is_speaking(self) -> bool:
+        """Whether a thinking sound is currently being spoken."""
+        return self._speaking
