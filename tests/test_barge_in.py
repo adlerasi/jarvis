@@ -173,6 +173,18 @@ class TestBargeInDetector(unittest.TestCase):
         self.assertIn("consecutive_speech", stats)
 
 
+    def test_disabled_returns_false(self):
+        """enabled=False iken process_user_audio hep False dondurur."""
+        from core.barge_in import BargeInDetector
+        det = BargeInDetector(enabled=False)
+        det.set_jarvis_speaking(True, audio_level=50.0)
+        import struct
+        samples = [8000 if i % 2 == 0 else -8000 for i in range(480)]
+        pcm = struct.pack("<" + "h" * 480, *samples)
+        result = det.process_user_audio(pcm)
+        self.assertFalse(result)
+
+
 class TestCreateBargeInDetector(unittest.TestCase):
     """Factory fonksiyon testleri."""
 
@@ -252,6 +264,102 @@ class TestBargeInTiming(unittest.TestCase):
             det.process_user_audio(chunk)
 
         self.assertFalse(fired, "JARVIS sessizken barge-in tetiklenmemeli")
+
+
+class TestBargeInInterruption(unittest.TestCase):
+    """Kesilen cumle tamamlama testleri — ROADMAP 2.3.3."""
+
+    def test_set_current_speech(self):
+        from core.barge_in import BargeInDetector
+        det = BargeInDetector()
+        det.set_current_speech("Merhaba, bugün nasılsın?", spoken_chars=0)
+        self.assertEqual(det._current_speech, "Merhaba, bugün nasılsın?")
+
+    def test_advance_spoken(self):
+        from core.barge_in import BargeInDetector
+        det = BargeInDetector()
+        det.set_current_speech("Merhaba dünya", spoken_chars=0)
+        det.advance_spoken(8)
+        self.assertEqual(det._spoken_so_far, 8)
+
+    def test_capture_interruption_partial(self):
+        from core.barge_in import BargeInDetector
+        import struct
+        det = BargeInDetector(threshold_db=1.0, min_duration_ms=30,
+                              frame_duration_ms=30)
+        det.set_current_speech("Merhaba, bugün nasılsın?", spoken_chars=9)
+        det.set_jarvis_speaking(True, audio_level=10.0)
+        samples = [8000 if i % 2 == 0 else -8000 for i in range(480)]
+        pcm = struct.pack("<" + "h" * 480, *samples)
+        det.process_user_audio(pcm)
+        self.assertTrue(det.is_barge_in())
+        self.assertTrue(len(det.get_interrupted_sentence()) > 0)
+        self.assertIn("bugün", det.get_interrupted_sentence())
+
+    def test_get_interrupted_sentence_full(self):
+        from core.barge_in import BargeInDetector
+        det = BargeInDetector()
+        det.set_current_speech("Merhaba dünya", spoken_chars=0)
+        det._capture_interruption()
+        self.assertEqual(det.get_interrupted_sentence(), "Merhaba dünya")
+
+    def test_get_interrupted_sentence_partial(self):
+        from core.barge_in import BargeInDetector
+        det = BargeInDetector()
+        det.set_current_speech("Merhaba dünya", spoken_chars=8)
+        det._capture_interruption()
+        self.assertEqual(det.get_interrupted_sentence(), "dünya")
+
+    def test_get_interrupted_sentence_all_spoken(self):
+        from core.barge_in import BargeInDetector
+        det = BargeInDetector()
+        det.set_current_speech("Merhaba", spoken_chars=7)
+        det._capture_interruption()
+        self.assertEqual(det.get_interrupted_sentence(), "")
+
+    def test_has_interruption_true(self):
+        from core.barge_in import BargeInDetector
+        det = BargeInDetector()
+        det.set_current_speech("test", spoken_chars=0)
+        det._capture_interruption()
+        self.assertTrue(det.has_interruption())
+
+    def test_has_interruption_false(self):
+        from core.barge_in import BargeInDetector
+        det = BargeInDetector()
+        self.assertFalse(det.has_interruption())
+
+    def test_clear_interruption(self):
+        from core.barge_in import BargeInDetector
+        det = BargeInDetector()
+        det.set_current_speech("test", spoken_chars=0)
+        det._capture_interruption()
+        self.assertTrue(det.has_interruption())
+        det.clear_interruption()
+        self.assertFalse(det.has_interruption())
+
+    def test_reset_clears_interruption(self):
+        from core.barge_in import BargeInDetector
+        det = BargeInDetector()
+        det.set_current_speech("test", spoken_chars=0)
+        det._capture_interruption()
+        det.reset()
+        self.assertFalse(det.has_interruption())
+
+    def test_set_jarvis_speaking_false_clears_interruption(self):
+        from core.barge_in import BargeInDetector
+        det = BargeInDetector()
+        det.set_current_speech("test", spoken_chars=0)
+        det._capture_interruption()
+        det.set_jarvis_speaking(False)
+        self.assertFalse(det.has_interruption())
+
+    def test_interruption_in_stats(self):
+        from core.barge_in import BargeInDetector
+        det = BargeInDetector()
+        stats = det.get_stats()
+        self.assertIn("interrupted_text", stats)
+        self.assertIn("spoken_so_far", stats)
 
 
 if __name__ == "__main__":
